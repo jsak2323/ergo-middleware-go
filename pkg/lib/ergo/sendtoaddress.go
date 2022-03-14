@@ -7,21 +7,20 @@ import (
 	"math/big"
 
 	"github.com/btcid/ergo-middleware-go/cmd/config"
+	"github.com/btcid/ergo-middleware-go/pkg/lib/util"
 	logger "github.com/btcid/ergo-middleware-go/pkg/logging"
 	"github.com/go-resty/resty/v2"
 )
 
 type (
-	re1 string
-
-	paymentSendReq struct {
+	paymentSendReq []struct {
 		Address string `json:"address"`
 		Value   int64  `json:"value"`
 	}
 )
 
 func SendToAddress(address string, amountInDecimal string) (string, error) {
-	txHash := ""
+	var txHash string
 
 	err := UnlockWallet()
 	if err != nil {
@@ -31,15 +30,20 @@ func SendToAddress(address string, amountInDecimal string) (string, error) {
 
 	defer LockWallet()
 
-	amount, ok := new(big.Int).SetString(amountInDecimal, 10)
+	balance := util.DecimalToRaw(amountInDecimal, 9)
+	amount, ok := new(big.Int).SetString(balance, 10)
 	if !ok {
 		return txHash, errors.New("fail big.SetString(" + amountInDecimal + ")")
 	}
 
-	reqJson, err := json.Marshal(paymentSendReq{
-		Address: address,
-		Value:   amount.Int64(),
-	})
+	reqBody := paymentSendReq{
+		{
+			Address: address,
+			Value:   amount.Int64(),
+		},
+	}
+
+	reqJson, err := json.Marshal(reqBody)
 	if err != nil {
 		logger.ErrorLog("SendToAddress json.Marshal(req) err: " + err.Error())
 		return txHash, err
@@ -53,17 +57,11 @@ func SendToAddress(address string, amountInDecimal string) (string, error) {
 		SetHeader("Content-Type", "application/json").
 		SetHeader("api_key", config.CONF.NodeJsonHtppApiKey).
 		SetBody(string(reqJson)).
-		Get(paymentWalletURL)
+		Post(paymentWalletURL)
 
 	if err != nil {
 		logger.ErrorLog("SendToAddress restyClient.R(). err: " + err.Error())
 		return txHash, err
-	}
-
-	unmarshalErr := json.Unmarshal(res.Body(), &txHash)
-	if unmarshalErr != nil {
-		logger.ErrorLog("SendToAddress json.Unmarshal([]byte(res), &responseExp) err: " + unmarshalErr.Error())
-		return txHash, unmarshalErr
 	}
 
 	if res.StatusCode() != 200 {
@@ -76,6 +74,12 @@ func SendToAddress(address string, amountInDecimal string) (string, error) {
 
 		logger.ErrorLog("SendToAddress, err: " + err.Detail)
 		return txHash, errors.New(err.Detail)
+	}
+
+	unmarshalErr := json.Unmarshal(res.Body(), &txHash)
+	if unmarshalErr != nil {
+		logger.ErrorLog("SendToAddress json.Unmarshal([]byte(res), &responseExp) err: " + unmarshalErr.Error())
+		return txHash, unmarshalErr
 	}
 
 	// err = LockWallet()
@@ -91,14 +95,14 @@ func SendToAddress(address string, amountInDecimal string) (string, error) {
 
 curl command:
 curl -X 'POST' \
-  'https://editor.swagger.io/wallet/payment/send' \
+  'http://localhost:9052/wallet/payment/send' \
   -H 'accept: application/json' \
   -H 'api_key: hello' \
   -H 'Content-Type: application/json' \
   -d '[
   {
-    "address": "3WwbzW6u8hKWBcL1W7kNVMr25s2UHfSBnYtwSHvrRQt7DdPuoXrt",
-    "value": 1
+    "address": "3WyjzUgxpHC1iEx12CvRNtEGrKT7Qw9mLTcxCGYo4QbWg9m4Cv4N",
+    "value": 100000000
   }
 ]'
 

@@ -34,6 +34,7 @@ func GetNewAddress() (GetNewAddressResp, error) {
 	restyClient := resty.New()
 	res, err := restyClient.SetCloseConnection(true).R().
 		SetHeader("Content-Type", "application/json").
+		SetHeader("api_key", config.CONF.NodeJsonHtppApiKey).
 		Get(GetNewAddressURL)
 
 	if err != nil {
@@ -47,7 +48,7 @@ func GetNewAddress() (GetNewAddressResp, error) {
 		return response, unmarshalErr
 	}
 
-	if (response.Error >= 300 && response.Error <= 600) && response.Detail != "" {
+	if res.StatusCode() != 200 && response.Detail != "" {
 		logger.ErrorLog("GetNewAddress, err: " + response.Detail)
 		return response, errors.New(response.Detail)
 	}

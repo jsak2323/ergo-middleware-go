@@ -39,15 +39,15 @@ func main() {
 	// 	}
 	// methods.ListTransactions(limit)
 
-	// case "sendtoaddress":
-	// 	if len(os.Args) < 3 {
-	// 		fmt.Print(" - Invalid Parameters.\n\n\n")
-	// 		return
-	// 	}
-	// 	amount := os.Args[2] // e.g: 0.01
-	// 	to := os.Args[3]     // e.g: RNJz9x7qBkpxxqzKdZryP3SCShnCuDu6og
+	case "sendtoaddress":
+		if len(os.Args) < 3 {
+			fmt.Print(" - Invalid Parameters.\n\n\n")
+			return
+		}
+		amount := os.Args[2] // e.g: 0.01
+		to := os.Args[3]     // e.g: RNJz9x7qBkpxxqzKdZryP3SCShnCuDu6og
 
-	// 	methods.SendToAddress(amount, to)
+		methods.SendToAddress(amount, to)
 
 	default:
 		fmt.Print(" - Method not found.\n")

@@ -1,7 +1,6 @@
 package rpc
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/btcid/ergo-middleware-go/pkg/lib/ergo"
@@ -28,10 +27,11 @@ func (dr *ERGORpc) GetBalance(req *http.Request, args *RpcReq, reply *GetBalance
 		return err
 	}
 
-	balanceString := fmt.Sprintf("%.8f", balance)
-	logger.Log(" - GetBalance Balance: " + balanceString + " ergo-middleware-go")
+	// balanceString := fmt.Sprintf("%.8f", balance)
+	// logger.Log(" - GetBalance Balance: " + balanceString + " ergo-middleware-go")
+	logger.Log(" - GetBalance Balance: " + balance + " ergo-middleware-go")
 
-	reply.Content.Balance = balanceString
+	reply.Content.Balance = balance
 
 	return nil
 }

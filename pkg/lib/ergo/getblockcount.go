@@ -53,7 +53,7 @@ func GetBlockCount() (int, error) {
 
 	response := InfoResponse{}
 
-	infoURL := fmt.Sprintf("%s/wallet/info",
+	infoURL := fmt.Sprintf("%s/info",
 		config.CONF.NodeJsonHtppUrl)
 
 	restyClient := resty.New()
@@ -65,8 +65,6 @@ func GetBlockCount() (int, error) {
 		logger.ErrorLog("GetBlockCount restyClient.R(). err: " + err.Error())
 		return blockCount, err
 	}
-
-	// _ = res
 
 	err = json.Unmarshal(res.Body(), &response)
 	if err != nil {

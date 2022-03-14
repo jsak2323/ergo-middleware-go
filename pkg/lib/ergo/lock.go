@@ -22,7 +22,7 @@ func LockWallet() error {
 	res, err := restyClient.SetCloseConnection(true).R().
 		SetHeader("Content-Type", "application/json").
 		SetHeader("api_key", config.CONF.NodeJsonHtppApiKey).
-		Post(lockWalletURL)
+		Get(lockWalletURL)
 
 	if err != nil {
 		logger.ErrorLog("LockWallet restyClient.R(). err: " + err.Error())

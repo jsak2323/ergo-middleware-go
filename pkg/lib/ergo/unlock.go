@@ -42,15 +42,17 @@ func UnlockWallet() error {
 		return err
 	}
 
-	unmarshalErr := json.Unmarshal(res.Body(), &response)
-	if unmarshalErr != nil {
-		logger.ErrorLog("UnlockWallet json.Unmarshal([]byte(res), &responseExp) err: " + unmarshalErr.Error())
-		return unmarshalErr
-	}
+	if res.StatusCode() != 200 {
+		unmarshalErr := json.Unmarshal(res.Body(), &response)
+		if unmarshalErr != nil {
+			logger.ErrorLog("UnlockWallet json.Unmarshal([]byte(res), &responseExp) err: " + unmarshalErr.Error())
+			return unmarshalErr
+		}
 
-	if (response.Error >= 300 && response.Error <= 600) && response.Detail != "" && response.Detail != "Wallet already unlocked" {
-		logger.ErrorLog("UnlockWallet, err: " + response.Detail)
-		return errors.New(response.Detail)
+		if response.Detail != "Wallet already unlocked" {
+			logger.ErrorLog("UnlockWallet, err: " + response.Detail)
+			return errors.New(response.Detail)
+		}
 	}
 
 	return nil

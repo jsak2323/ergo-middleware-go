@@ -32,7 +32,7 @@ func GetBalance() (string, error) {
 	res, err := restyClient.SetCloseConnection(true).R().
 		SetHeader("Content-Type", "application/json").
 		SetHeader("api_key", config.CONF.NodeJsonHtppApiKey).
-		Post(balancesWalletURL)
+		Get(balancesWalletURL)
 
 	if err != nil {
 		logger.ErrorLog("GetBalance restyClient.R(). err: " + err.Error())
@@ -45,7 +45,7 @@ func GetBalance() (string, error) {
 		return balance, unmarshalErr
 	}
 
-	if (response.Error >= 300 && response.Error <= 600) && response.Detail != "" {
+	if res.StatusCode() != 200 || response.Err.Detail != "" {
 		logger.ErrorLog("GetBalance, err: " + response.Detail)
 		return balance, errors.New(response.Detail)
 	}
@@ -55,8 +55,6 @@ func GetBalance() (string, error) {
 	}
 
 	balTemp := strconv.FormatInt(*response.Balance, 10)
-
-	// max decimal = 9 (ergo)
 	balance = util.RawToDecimal(balTemp, 9)
 
 	return balance, nil
