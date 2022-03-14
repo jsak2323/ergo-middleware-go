@@ -1,0 +1,42 @@
+{
+    "rpc_user"      : "ifan",
+    "rpc_pass"      : "testpass",
+    "rpc_port"      : "3000",
+    "rpc_hashkey"   : "testhashkey",
+
+    "node_jsonrpc_url" : "http://127.0.0.1:7116",
+    "node_rpc_user"    : "test",
+    "node_encrypted_rpc_pass" : "7bbb84e4a3c2990556ffee6a15f3d5b5593fc46d052abd2b78638c28fb3ca386",
+
+    "node_jsonhttp_url" : "http://127.0.0.1:9052",
+    "node_jsonhttp_api_key" : "hello",
+    "wallet_pass" :"ergotest",
+
+    "second_node_jsonrpc_url" : "http://127.0.0.1:7116",
+    "second_node_rpc_user"    : "",
+    "second_node_encrypted_rpc_pass" : "",
+
+    "second_node_enable" : false,
+
+    "encrypted_passphrase" : "7bbb84e4a3c2990556ffee6a15f3d5b5593fc46d052abd2b78638c28fb3ca386", 
+    "encryption_key"       : "tujDoivCitCiHaccoujhomyudrevPidd",
+
+    "main_address"         : "RFFkTBhahhqHJVTjG9qwot6ZSxE89v9NSn",
+    "fee_default"          : 0.01,
+    "min_clearing"         : 0.02,
+
+    "notification_emails" : ["ifan.wijaya@bitcoin.co.id", "melvin@bitcoin.co.id", "alvin@bitcoin.co.id"],
+
+    "authorized_ips" : [
+        "127.0.0.1"
+    ],
+
+    "mail_host"             : "smtp.gmail.com",
+    "mail_port"             : "587",
+    "mail_user"             : "icefang.000@gmail.com",
+    "mail_address"          : "icefang.000@gmail.com",
+    "mail_encrypted_pass"   : "1ca87cc8303d0a4a5476ef0a8250dad8b0208b619c2c02afada6a5be2d553fbdd91498316ea246f25a",
+    "mail_encryption_key"   : "tujDoivCitCiHaccoujhomyudrevPidd",
+
+    "session_error_mail_notif_limit" : 30
+}
