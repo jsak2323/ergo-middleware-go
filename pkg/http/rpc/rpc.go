@@ -1,5 +1,10 @@
 package rpc
 
+import (
+	ad "github.com/btcid/ergo-middleware-go/pkg/domain/address"
+	tx "github.com/btcid/ergo-middleware-go/pkg/domain/transaction"
+)
+
 type RpcReq struct {
 	RpcUser string
 	Hash    string
@@ -9,8 +14,17 @@ type RpcReq struct {
 	Nonce   string
 }
 
-type ERGORpc struct{}
+type ERGORpc struct {
+	addressRepo     ad.AddressRepository
+	transactionRepo tx.TransactionRepository
+}
 
-func NewERGORpc() *ERGORpc {
-	return &ERGORpc{}
+func NewERGORpc(
+	addressRepo ad.AddressRepository,
+	transactionRepo tx.TransactionRepository,
+) *ERGORpc {
+	return &ERGORpc{
+		addressRepo,
+		transactionRepo,
+	}
 }

@@ -16,7 +16,23 @@ type SendToAddressResStruct struct {
 }
 
 func (dr *ERGORpc) SendToAddress(req *http.Request, args *RpcReq, reply *SendToAddressRes) error {
-	defer req.Body.Close()
+	err := ergo.UnlockWallet()
+	if err != nil {
+		logger.ErrorLog("SendToAddress -- ergo.UnlockWallet(), err: " + err.Error())
+		return err
+	}
+
+	defer func() {
+		err = ergo.LockWallet()
+		if err != nil {
+			logger.ErrorLog("SendToAddress -- ergo.lockWallet(), err: " + err.Error())
+		}
+
+		err = req.Body.Close()
+		if err != nil {
+			logger.ErrorLog("SendToAddress -- req.Body.Close(), err: " + err.Error())
+		}
+	}()
 
 	amountInDecimal := args.Arg1
 	toAddr := args.Arg2

@@ -23,41 +23,33 @@ type (
 			SpendingProof struct {
 				ProofBytes string `json:"proofBytes"`
 				Extension  struct {
-					Num1 string `json:"1"`
 				} `json:"extension"`
 			} `json:"spendingProof"`
 		} `json:"inputs"`
-		DataInputs []struct {
-			BoxID string `json:"boxId"`
-		} `json:"dataInputs"`
-		Outputs []struct {
-			BoxID          string `json:"boxId"`
-			Value          int    `json:"value"`
-			ErgoTree       string `json:"ergoTree"`
-			CreationHeight int    `json:"creationHeight"`
-			Assets         []struct {
-				TokenID string `json:"tokenId"`
-				Amount  int    `json:"amount"`
-			} `json:"assets"`
+		DataInputs []interface{} `json:"dataInputs"`
+		Outputs    []struct {
+			BoxID               string        `json:"boxId"`
+			Value               int           `json:"value"`
+			ErgoTree            string        `json:"ergoTree"`
+			Address             string        `json:"address"`
+			Assets              []interface{} `json:"assets"`
+			CreationHeight      int           `json:"creationHeight"`
 			AdditionalRegisters struct {
-				R4 string `json:"R4"`
 			} `json:"additionalRegisters"`
-			TransactionID string `json:"transactionId"`
-			Index         int    `json:"index"`
 		} `json:"outputs"`
-		InclusionHeight  int   `json:"inclusionHeight"`
-		NumConfirmations int   `json:"numConfirmations"`
-		Scans            []int `json:"scans"`
 		Size             int   `json:"size"`
+		InclusionHeight  int   `json:"inclusionHeight"`
+		Scans            []int `json:"scans"`
+		NumConfirmations int   `json:"numConfirmations"`
 	}
 )
 
-func ListTransactions(minConfirmations int) (ListTransactionsResp, error) {
+func ListTransactions(maxConfirmations int) (ListTransactionsResp, error) {
 	response := ListTransactionsResp{}
 
 	err := UnlockWallet()
 	if err != nil {
-		logger.ErrorLog("GetNewAddress unlock wallet. err: " + err.Error())
+		logger.ErrorLog("ListTransactions unlock wallet. err: " + err.Error())
 		return response, err
 	}
 
@@ -66,8 +58,8 @@ func ListTransactions(minConfirmations int) (ListTransactionsResp, error) {
 	transactionsWalletURL := fmt.Sprintf("%s/wallet/transactions",
 		config.CONF.NodeJsonHtppUrl)
 
-	if minConfirmations != 0 {
-		transactionsWalletURL += fmt.Sprintf("?minConfirmations=%v", minConfirmations)
+	if maxConfirmations != 0 {
+		transactionsWalletURL += fmt.Sprintf("?maxConfirmations=%v", maxConfirmations)
 	}
 
 	restyClient := resty.New()
@@ -87,14 +79,14 @@ func ListTransactions(minConfirmations int) (ListTransactionsResp, error) {
 		return response, unmarshalErr
 	}
 
-	if (response.Error >= 300 && response.Error <= 600) && response.Detail != "" {
+	if res.StatusCode() != 200 {
 		logger.ErrorLog("ListTransactions, err: " + response.Detail)
 		return response, errors.New(response.Detail)
 	}
 
 	// err = LockWallet()
 	// if err != nil {
-	// 	logger.ErrorLog("GetNewAddress lock wallet. err: " + err.Error())
+	// 	logger.ErrorLog("ListTransactions lock wallet. err: " + err.Error())
 	// 	return response, err
 	// }
 

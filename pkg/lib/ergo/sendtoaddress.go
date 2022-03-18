@@ -22,14 +22,6 @@ type (
 func SendToAddress(address string, amountInDecimal string) (string, error) {
 	var txHash string
 
-	err := UnlockWallet()
-	if err != nil {
-		logger.ErrorLog("SendToAddress unlock wallet. err: " + err.Error())
-		return txHash, err
-	}
-
-	defer LockWallet()
-
 	balance := util.DecimalToRaw(amountInDecimal, 9)
 	amount, ok := new(big.Int).SetString(balance, 10)
 	if !ok {

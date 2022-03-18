@@ -19,14 +19,6 @@ type GetNewAddressResp struct {
 func GetNewAddress() (GetNewAddressResp, error) {
 	response := GetNewAddressResp{}
 
-	err := UnlockWallet()
-	if err != nil {
-		logger.ErrorLog("GetNewAddress unlock wallet. err: " + err.Error())
-		return response, err
-	}
-
-	defer LockWallet()
-
 	GetNewAddressURL := fmt.Sprintf("%s/wallet/deriveNextKey",
 		config.CONF.NodeJsonHtppUrl,
 	)

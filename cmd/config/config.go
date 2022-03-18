@@ -1,6 +1,7 @@
 package config
 
 import (
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -31,23 +32,18 @@ type Configuration struct {
 	RpcPort    string `json:"rpc_port"`
 	RpcHashkey string `json:"rpc_hashkey"`
 
-	NodeJsonRpcUrl       string `json:"node_jsonrpc_url"`
-	NodeRpcUser          string `json:"node_rpc_user"`
-	NodeEncryptedRpcPass string `json:"node_encrypted_rpc_pass"`
-
 	NodeJsonHtppUrl    string `json:"node_jsonhttp_url"`
 	NodeJsonHtppApiKey string `json:"node_jsonhttp_api_key"`
 
 	WalletPassword string `json:"wallet_pass"`
 
-	SecondNodeJsonRpcUrl       string `json:"second_node_jsonrpc_url"`
-	SecondNodeRpcUser          string `json:"second_node_rpc_user"`
-	SecondNodeEncryptedRpcPass string `json:"second_node_encrypted_rpc_pass"`
-	SecondNodeEnable           bool   `json:"second_node_enable"`
-
 	MainAddress string  `json:"main_address"`
 	FeeDefault  float64 `json:"fee_default"`
 	MinClearing float64 `json:"min_clearing"`
+
+	MysqlDbUser string `json:"mysql_db_user"`
+	MysqlDbPass string `json:"mysql_db_pass"`
+	MysqlDbName string `json:"mysql_db_name"`
 
 	EncryptedPassphrase string `json:"encrypted_passphrase"`
 	EncryptionKey       string `json:"encryption_key"`
@@ -82,4 +78,17 @@ func LoadAppConfig() {
 		fmt.Println("error:", err)
 	}
 	fmt.Println("Done.")
+}
+
+func MysqlDbConn() (db *sql.DB) {
+	dbDriver := "mysql"
+	dbUser := CONF.MysqlDbUser
+	dbPass := CONF.MysqlDbPass
+	dbName := CONF.MysqlDbName
+
+	db, err := sql.Open(dbDriver, dbUser+":"+dbPass+"@/"+dbName)
+	if err != nil {
+		panic(err.Error())
+	}
+	return db
 }

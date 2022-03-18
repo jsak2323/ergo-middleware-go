@@ -1,10 +1,13 @@
 package main
 
 import (
+	"database/sql"
+
 	"github.com/divan/gorilla-xmlrpc/xml"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/rpc"
 
+	mysqldb "github.com/btcid/ergo-middleware-go/pkg/database/mysql"
 	httphandler "github.com/btcid/ergo-middleware-go/pkg/http"
 	httprpc "github.com/btcid/ergo-middleware-go/pkg/http/rpc"
 	logger "github.com/btcid/ergo-middleware-go/pkg/logging"
@@ -20,11 +23,19 @@ func rpcAfterFunc(ri *rpc.RequestInfo) {
 	logger.InfoLog(ri.Method+" done.--------------", req)
 }
 
-func SetRoutes(r *mux.Router) {
+func SetRoutes(r *mux.Router, mysqlDbConn *sql.DB) {
+	// REPOSITORIES
+	addressRepo := mysqldb.NewMysqlAddressRepository(mysqlDbConn)
+	transactionRepo := mysqldb.NewMysqlTransactionRepository(mysqlDbConn)
+	blocksRepo := mysqldb.NewMysqlBlocksRepository(mysqlDbConn)
+
+	_ = addressRepo
+	_ = transactionRepo
+	_ = blocksRepo
 
 	// XMLRPC SERVICE
 	xmlCodec := xml.NewCodec()
-	ergoXmlRpcService := httprpc.NewERGORpc()
+	ergoXmlRpcService := httprpc.NewERGORpc(addressRepo, transactionRepo)
 	ergoXmlRpcServer := rpc.NewServer()
 	ergoXmlRpcServer.RegisterCodec(xmlCodec, "text/xml")
 	ergoXmlRpcServer.RegisterBeforeFunc(rpcBeforeFunc)

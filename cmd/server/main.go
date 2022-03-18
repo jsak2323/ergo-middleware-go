@@ -14,9 +14,11 @@ import (
 )
 
 func main() {
+	mysqlDbConn := config.MysqlDbConn()
+	defer mysqlDbConn.Close()
 	r := mux.NewRouter()
 
-	SetRoutes(r)
+	SetRoutes(r, mysqlDbConn)
 
 	r.Use(logm.LogMiddleware)
 	r.Use(authm.AuthMiddleware)
