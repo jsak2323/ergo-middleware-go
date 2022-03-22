@@ -10,14 +10,7 @@
     sudo apt-get update && sudo apt-get install sqlite3
     sudo apt-get install jq
     sudo apt-get install zip
-
-    sudo apt-get install build-essential
-
-    sudo apt-get install mysql-server 
-    mysql_secure_installation
-    // run this query to require root password when connecting to db
-    // USE mysql; UPDATE mysql.user SET plugin = 'mysql_native_password' WHERE user = 'root' AND host = 'localhost'; UPDATE user set authentication_string=PASSWORD("mynewpassword") where User='root'; FLUSH PRIVILEGES;
-    sudo service mysql restart
+    sudo apt update && sudo apt -y install gcc g++
 
     // install stackdriver
     curl -sSO https://dl.google.com/cloudagents/add-monitoring-agent-repo.sh && sudo bash add-monitoring-agent-repo.sh && sudo apt-get update && sudo apt-cache madison stackdriver-agent
@@ -27,6 +20,26 @@
     // version check
     dpkg-query --show --showformat '${Package} ${Version} ${Architecture} ${Status}\n' stackdriver-agent
 
+## Setup MySql
+    sudo apt install mysql-server
+    sudo mysql_secure_installation
+    sudo mysql -u root -p
+    // run this query to require root password when connecting to db
+    USE mysql; 
+    UPDATE mysql.user SET plugin = 'mysql_native_password' WHERE user = 'root' AND host = 'localhost';
+    ALTER USER 'root'@'localhost' IDENTIFIED WITH caching_sha2_password BY 'mynewpassword';
+    FLUSH PRIVILEGES;
+    exit;
+    sudo service mysql restart
+
+## NODE INSTALLATION
+    mkdir ergo-node
+    cd ergo-node
+    wget https://github.com/ergoplatform/ergo/releases/download/v4.0.24/ergo-4.0.24.jar
+    mkdir .ergo
+    wget https://pastebin.com/raw/fez234Dy
+    mv fez234Dy ergo.conf
+    java -Xmx4G -jar ergo-4.0.24.jar --mainnet -c ergo.conf
 
 
 ## INSTALL GO
@@ -97,8 +110,9 @@
 ## API REFERENCE
 
     // getblockchaininfo
-    curl --user root --data-binary '{"jsonrpc": "1.0", "id":"curltest", "method": "getblockchaininfo", "params": [] }' -H 'content-type: text/plain;' http://127.0.0.1:14022/ "getblockchaininfo", "params": [] }' -H 'content-type: text/plain;' http://127.0.0.1:14022/
-
+    curl -X 'GET' \
+        'http://localhost:9052/info' \
+        -H 'accept: application/json'
     
 
 
