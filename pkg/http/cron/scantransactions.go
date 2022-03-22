@@ -33,26 +33,20 @@ func (cron *ErgoCron) ScanBlockAndUpdateTransactions(w http.ResponseWriter, req 
 func (cron *ErgoCron) ScanTransactions(blockNum int64) (err error) {
 
 	var (
-		start          = time.Now()
-		txCount        = 0
-		blockCountNode = blockNum
-		blockDBConv    = blockNum
-		lastConfDBConv int
+		start         = time.Now()
+		txCount       = 0
+		blockDBConv   = blockNum
+		maxblockCount = blockNum
 	)
 
-	// get node block count
-	blockCountNode, err = ergo.GetBlockCount()
-	if err != nil {
-		logger.ErrorLog("scanTransactions ergo.GetBlockCount() err: " + err.Error())
-		return err
-	}
-
 	if blockNum == 0 {
-		lastConfDBConv, err = cron.transactionRepo.GetLatestNumConfirmations()
+		// get to blocks db
+		lastBlock, err := cron.blockRepo.Get()
 		if err != nil {
 			logger.ErrorLog("scanTransactions cron.blockRepo.Get() err: " + err.Error())
 			return err
 		}
+		blockDBConv, _ = strconv.ParseInt(lastBlock.LastUpdatedBlockNum, 10, 64)
 
 	}
 
@@ -66,24 +60,24 @@ func (cron *ErgoCron) ScanTransactions(blockNum int64) (err error) {
 	defer ergo.LockWallet()
 
 	// insert transactions
-	txCount, blockNumTx, err := cron.saveTransactions(blockDBConv, blockCountNode, lastConfDBConv)
+	txCount, blockNumTx, err := cron.saveTransactions(blockDBConv, maxblockCount)
 	if err != nil {
 		logger.ErrorLog("scanTransactions cron.saveTransactions(blockDBConv, blockCountNode) err: " + err.Error())
 		return err
 	}
 
-	if blockCountNode != blockNumTx && blockNum == 0 {
+	if blockDBConv != blockNumTx {
 		LastUpdateTime := int(time.Now().Unix())
 
 		// update last updated block num
 		err = cron.blockRepo.Update(mbl.Blocks{
 			LastUpdateTime:      LastUpdateTime,
-			LastUpdatedBlockNum: fmt.Sprintf("%d", blockCountNode),
+			LastUpdatedBlockNum: fmt.Sprintf("%d", blockNumTx),
 		})
 		fmt.Printf(
 			"\n -- Last update time: %d, Last updated block num: %d\n",
 			LastUpdateTime,
-			blockCountNode,
+			blockNumTx,
 		)
 		if err != nil {
 			logger.ErrorLog(err.Error())
@@ -96,12 +90,12 @@ func (cron *ErgoCron) ScanTransactions(blockNum int64) (err error) {
 	return nil
 }
 
-func (cron *ErgoCron) saveTransactions(blockDBConv, blockCountNode int64, lastConfirmation int) (txCount int, blockNum int64, err error) {
-	if lastConfirmation >= 15 {
-		lastConfirmation -= 15
+func (cron *ErgoCron) saveTransactions(blockDBConv, blockCountNode int64) (txCount int, blockNum int64, err error) {
+	if blockDBConv >= 15 {
+		blockDBConv -= 15
 	}
 
-	transactions, err := ergo.ListTransactions(blockDBConv, blockCountNode, lastConfirmation)
+	transactions, err := ergo.ListTransactions(blockDBConv, blockCountNode)
 	if err != nil {
 		logger.ErrorLog("scanTransactions lastUpdatedBlockNum convert to int64 err: " + err.Error())
 		return txCount, blockNum, err

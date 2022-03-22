@@ -44,7 +44,7 @@ type (
 	}
 )
 
-func ListTransactions(minInclusionHeight, maxInclusionHeight int64, minConfirmation int) (ListTransactionsResp, error) {
+func ListTransactions(minInclusionHeight, maxInclusionHeight int64) (ListTransactionsResp, error) {
 	response := ListTransactionsResp{}
 
 	err := UnlockWallet()
@@ -55,14 +55,11 @@ func ListTransactions(minInclusionHeight, maxInclusionHeight int64, minConfirmat
 
 	defer LockWallet()
 
-	transactionsWalletURL := fmt.Sprintf("%s/wallet/transactions?", config.CONF.NodeJsonHtppUrl)
+	transactionsWalletURL := fmt.Sprintf("%s/wallet/transactions?minInclusionHeight=%v", config.CONF.NodeJsonHtppUrl, minInclusionHeight)
 
-	if minConfirmation != 0 {
-		// by cron
-		transactionsWalletURL += fmt.Sprintf("minConfirmations=%v", minConfirmation)
-	} else {
+	if maxInclusionHeight > 0 {
 		// by request block
-		transactionsWalletURL += fmt.Sprintf("minInclusionHeight=%v&maxInclusionHeight=%v", minInclusionHeight, maxInclusionHeight)
+		transactionsWalletURL += fmt.Sprintf("&maxInclusionHeight=%v", maxInclusionHeight)
 	}
 
 	restyClient := resty.New()
