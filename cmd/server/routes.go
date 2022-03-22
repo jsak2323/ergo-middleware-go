@@ -9,6 +9,7 @@ import (
 
 	mysqldb "github.com/btcid/ergo-middleware-go/pkg/database/mysql"
 	httphandler "github.com/btcid/ergo-middleware-go/pkg/http"
+	httpcron "github.com/btcid/ergo-middleware-go/pkg/http/cron"
 	httprpc "github.com/btcid/ergo-middleware-go/pkg/http/rpc"
 	logger "github.com/btcid/ergo-middleware-go/pkg/logging"
 )
@@ -44,8 +45,11 @@ func SetRoutes(r *mux.Router, mysqlDbConn *sql.DB) {
 	r.Handle("/xmlrpc", ergoXmlRpcServer)
 
 	// CRON ROUTES
-	// ergoCronService := httpcron.NewergoCron()
+	ergoCronService := httpcron.NewErgoCron(addressRepo, transactionRepo, blocksRepo)
 
+	_ = ergoCronService
+	r.HandleFunc("/cron/scan_transactions", ergoCronService.ScanBlockAndUpdateTransactions)
+	r.HandleFunc("/cron/collect_dust", ergoCronService.UpdateConfirmations)
 	// r.HandleFunc("/cron/collect_dust", ergoCronService.CollectDust)
 
 	// HTTP ROUTES

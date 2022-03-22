@@ -3,16 +3,16 @@ USE ergo;
 
 CREATE TABLE transactions (
   id                INT(11) NOT NULL AUTO_INCREMENT,
-  tx_id             VARCHAR(255) NOT NULL,
+  hash              VARCHAR(255) NOT NULL,
   blockNumber       VARCHAR(255) NOT NULL,
   `to`              VARCHAR(255) NOT NULL,
   amount            VARCHAR(255) NOT NULL,
-  PRIMARY KEY (id),
-  UNIQUE KEY tx_id (tx_id)
+  NumConfirmation   VARCHAR(255) NOT NULL,
+  PRIMARY KEY (id)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=latin1;
+
+ALTER TABLE transactions DROP INDEX tx_id;
  
---tx_id = hash
--- `from`            VARCHAR(255) NOT NULL,
 
 CREATE TABLE blocks (
   lastUpdateTime        INT(11) NOT NULL,
@@ -29,12 +29,11 @@ CREATE TABLE addresses (
   UNIQUE KEY address (address)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=latin1;
 
--- privateKey    VARCHAR(255) NOT NULL,
 
 # transactions indexes
 CREATE INDEX idx_txto     ON transactions (`to`);
 CREATE INDEX idx_txamount ON transactions (amount);
-CREATE INDEX idx_txhash   ON transactions (tx_id);
+CREATE INDEX idx_txhash   ON transactions (hash);
 
 # addresses indexes
 CREATE INDEX idx_addraddr ON addresses (address);

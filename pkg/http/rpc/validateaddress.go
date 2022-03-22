@@ -14,7 +14,7 @@ type ValidateAddressResStruct struct {
 	Error   string
 }
 
-func (dr *ERGORpc) ValidateAddress(req *http.Request, args *RpcReq, reply *ValidateAddressRes) error {
+func (r *ERGORpc) ValidateAddress(req *http.Request, args *RpcReq, reply *ValidateAddressRes) error {
 	defer req.Body.Close()
 
 	reply.Content.IsValid = false

@@ -15,7 +15,7 @@ type GetBalanceResStruct struct {
 	Error   string
 }
 
-func (dr *ERGORpc) GetBalance(req *http.Request, args *RpcReq, reply *GetBalanceRes) error {
+func (r *ERGORpc) GetBalance(req *http.Request, args *RpcReq, reply *GetBalanceRes) error {
 	defer req.Body.Close()
 
 	reply.Content.Balance = "0"

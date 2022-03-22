@@ -33,7 +33,6 @@ func (r *transactionRepository) Create(transaction *tx.Transaction) error {
 
 	res, err := rows.Exec(
 		transaction.BlockNumber,
-		transaction.From,
 		transaction.To,
 		transaction.Amount,
 		transaction.Hash)
@@ -185,11 +184,75 @@ func (r *transactionRepository) UpdateUnspentAddresses(addresses string) error {
 	return nil
 }
 
+func (r *transactionRepository) GetLatestNumConfirmations() (int, error) {
+	transaction := tx.Transaction{}
+
+	query := "SELECT NumConfirmation FROM " + transactionsTable + " ORDER BY NumConfirmation LIMIT 1"
+
+	rows, err := r.db.Query(query)
+	if err != nil {
+		return 0, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		err := rows.Scan(
+			&transaction.NumConfirmation,
+		)
+		if err != nil {
+			return 0, err
+		}
+	}
+
+	return transaction.NumConfirmation, nil
+}
+
+func (r *transactionRepository) GetConfTransactions(limit, conf int) ([]tx.Transaction, error) {
+	query := "SELECT * FROM " + transactionsTable + " WHERE NumConfirmation > " + strconv.Itoa(limit) + " ORDER BY id DESC "
+	limitQuery := "LIMIT " + strconv.Itoa(limit)
+	if limit > 0 {
+		query += limitQuery
+	}
+
+	rows, err := r.db.Query(query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	transactions := []tx.Transaction{}
+
+	for rows.Next() {
+		transaction := tx.Transaction{}
+		err = mapTransaction(rows, &transaction)
+		if err != nil {
+			return nil, err
+		}
+		transactions = append(transactions, transaction)
+	}
+
+	return transactions, nil
+}
+
+func (r *transactionRepository) UpdateNumConfirmation(id int, numConfirmations int) error {
+	query := "UPDATE " + transactionsTable + " SET " +
+		" `NumConfirmation` = " + strconv.Itoa(numConfirmations) +
+		" WHERE `Id` " + strconv.Itoa(id)
+
+	rows, err := r.db.Query(query)
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+
+	return nil
+}
+
 func mapTransaction(rows *sql.Rows, transaction *tx.Transaction) error {
 	err := rows.Scan(
 		&transaction.Id,
 		&transaction.BlockNumber,
-		&transaction.From,
+		&transaction.NumConfirmation,
 		&transaction.To,
 		&transaction.Amount,
 		&transaction.Hash,

@@ -25,7 +25,7 @@ type InfoResponse struct {
 	GenesisBlockID       string `json:"genesisBlockId"`
 	PreviousFullHeaderID string `json:"previousFullHeaderId"`
 	FullHeight           *int   `json:"fullHeight"`
-	HeadersHeight        *int   `json:"headersHeight"`
+	HeadersHeight        *int64 `json:"headersHeight"`
 	StateVersion         string `json:"stateVersion"`
 	FullBlocksScore      int64  `json:"fullBlocksScore"`
 	LaunchTime           int64  `json:"launchTime"`
@@ -48,8 +48,8 @@ type InfoResponse struct {
 }
 
 // headers height
-func GetBlockCount() (int, error) {
-	blockCount := 0
+func GetBlockCount() (int64, error) {
+	blockCount := int64(0)
 
 	response := InfoResponse{}
 

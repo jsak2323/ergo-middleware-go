@@ -29,7 +29,7 @@ type (
 		DataInputs []interface{} `json:"dataInputs"`
 		Outputs    []struct {
 			BoxID               string        `json:"boxId"`
-			Value               int           `json:"value"`
+			Value               int64         `json:"value"`
 			ErgoTree            string        `json:"ergoTree"`
 			Address             string        `json:"address"`
 			Assets              []interface{} `json:"assets"`
@@ -38,13 +38,13 @@ type (
 			} `json:"additionalRegisters"`
 		} `json:"outputs"`
 		Size             int   `json:"size"`
-		InclusionHeight  int   `json:"inclusionHeight"`
+		InclusionHeight  int64 `json:"inclusionHeight"`
 		Scans            []int `json:"scans"`
 		NumConfirmations int   `json:"numConfirmations"`
 	}
 )
 
-func ListTransactions(maxConfirmations int) (ListTransactionsResp, error) {
+func ListTransactions(minInclusionHeight, maxInclusionHeight int64, minConfirmation int) (ListTransactionsResp, error) {
 	response := ListTransactionsResp{}
 
 	err := UnlockWallet()
@@ -55,11 +55,14 @@ func ListTransactions(maxConfirmations int) (ListTransactionsResp, error) {
 
 	defer LockWallet()
 
-	transactionsWalletURL := fmt.Sprintf("%s/wallet/transactions",
-		config.CONF.NodeJsonHtppUrl)
+	transactionsWalletURL := fmt.Sprintf("%s/wallet/transactions?", config.CONF.NodeJsonHtppUrl)
 
-	if maxConfirmations != 0 {
-		transactionsWalletURL += fmt.Sprintf("?maxConfirmations=%v", maxConfirmations)
+	if minConfirmation != 0 {
+		// by cron
+		transactionsWalletURL += fmt.Sprintf("minConfirmations=%v", minConfirmation)
+	} else {
+		// by request block
+		transactionsWalletURL += fmt.Sprintf("minInclusionHeight=%v&maxInclusionHeight=%v", minInclusionHeight, maxInclusionHeight)
 	}
 
 	restyClient := resty.New()
@@ -83,12 +86,6 @@ func ListTransactions(maxConfirmations int) (ListTransactionsResp, error) {
 		logger.ErrorLog("ListTransactions, err: " + response.Detail)
 		return response, errors.New(response.Detail)
 	}
-
-	// err = LockWallet()
-	// if err != nil {
-	// 	logger.ErrorLog("ListTransactions lock wallet. err: " + err.Error())
-	// 	return response, err
-	// }
 
 	return response, nil
 }

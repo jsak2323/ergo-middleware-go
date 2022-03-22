@@ -16,7 +16,7 @@ type GetBlockCountResStruct struct {
 	Error  string
 }
 
-func (dr *ERGORpc) GetBlockCount(req *http.Request, args *RpcReq, reply *GetBlockCountRes) error {
+func (r *ERGORpc) GetBlockCount(req *http.Request, args *RpcReq, reply *GetBlockCountRes) error {
 	defer req.Body.Close()
 
 	reply.Content.Blocks = "0"
@@ -28,7 +28,7 @@ func (dr *ERGORpc) GetBlockCount(req *http.Request, args *RpcReq, reply *GetBloc
 		return err
 	}
 
-	reply.Content.Blocks = strconv.Itoa(blockCount)
+	reply.Content.Blocks = strconv.FormatInt(blockCount, 10)
 
 	return nil
 }

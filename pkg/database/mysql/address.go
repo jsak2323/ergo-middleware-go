@@ -22,7 +22,7 @@ func NewMysqlAddressRepository(db *sql.DB) ad.AddressRepository {
 
 func (r *addressRepository) Create(address *ad.Address) error {
 	rows, err := r.db.Prepare("INSERT INTO " + addressesTable +
-		"(created_at,  address)" +
+		"(created,  address)" +
 		" VALUES(?, ?)")
 	if err != nil {
 		return err

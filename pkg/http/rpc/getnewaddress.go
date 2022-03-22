@@ -17,7 +17,7 @@ type GetNewAddressResStruct struct {
 	Error   string
 }
 
-func (rpc *ERGORpc) GetNewAddress(req *http.Request, args *RpcReq, reply *GetNewAddressRes) error {
+func (r *ERGORpc) GetNewAddress(req *http.Request, args *RpcReq, reply *GetNewAddressRes) error {
 	err := ergo.UnlockWallet()
 	if err != nil {
 		logger.ErrorLog("GetNewAddress -- ergo.UnlockWallet(), err: " + err.Error())
@@ -48,7 +48,7 @@ func (rpc *ERGORpc) GetNewAddress(req *http.Request, args *RpcReq, reply *GetNew
 		Address: newAddress.Address,
 	}
 
-	err = rpc.addressRepo.Create(addressObj)
+	err = r.addressRepo.Create(addressObj)
 	if err != nil {
 		logger.ErrorLog("GetNewAddress -- saveNewAddress rpc.addressRepo.Create(addressObj), err: " + err.Error())
 		return err
