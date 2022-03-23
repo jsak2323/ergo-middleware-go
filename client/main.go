@@ -32,12 +32,12 @@ func main() {
 	case "getbalance":
 		methods.GetBalance()
 
-	// case "listtransactions":
-	// 	limit := ""
-	// 	if len(os.Args) >= 3 {
-	// 		limit = os.Args[2] // e.g: 5
-	// 	}
-	// methods.ListTransactions(limit)
+	case "listtransactions":
+		limit := ""
+		if len(os.Args) >= 3 {
+			limit = os.Args[2] // e.g: 5
+		}
+		methods.ListTransactions(limit)
 
 	case "sendtoaddress":
 		if len(os.Args) < 3 {
