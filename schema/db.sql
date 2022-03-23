@@ -7,11 +7,9 @@ CREATE TABLE transactions (
   blockNumber       VARCHAR(255) NOT NULL,
   `to`              VARCHAR(255) NOT NULL,
   amount            VARCHAR(255) NOT NULL,
-  NumConfirmation   VARCHAR(255) NOT NULL,
+  numConfirmation   VARCHAR(255) NOT NULL,
   PRIMARY KEY (id)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=latin1;
-
-ALTER TABLE transactions DROP INDEX tx_id;
  
 
 CREATE TABLE blocks (
@@ -38,3 +36,15 @@ CREATE INDEX idx_txhash   ON transactions (hash);
 # addresses indexes
 CREATE INDEX idx_addraddr ON addresses (address);
 
+INSERT INTO `ergo`.`addresses`
+(`created`,
+`address`)
+VALUES
+(1647970877,"3Wwmx2AoP5MpLApcpHkdpjdscFcBStSiYo2jQsyYdEc2MaoGaU59"),
+(1647970877,"3Wy4Bpi1YD74w1CfFNxpoKeGNPSHdQgkz3qxeNuAVahxCjDFQ5Bb");
+
+3Wwmx2AoP5MpLApcpHkdpjdscFcBStSiYo2jQsyYdEc2MaoGaU59
+3Wy4Bpi1YD74w1CfFNxpoKeGNPSHdQgkz3qxeNuAVahxCjDFQ5Bb
+
+3Wwmx2AoP5MpLApcpHkdpjdscFcBStSiYo2jQsyYdEc2MaoGaU59
+3Wy4Bpi1YD74w1CfFNxpoKeGNPSHdQgkz3qxeNuAVahxCjDFQ5Bb

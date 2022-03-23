@@ -24,7 +24,7 @@ func NewMysqlTransactionRepository(db *sql.DB) tx.TransactionRepository {
 
 func (r *transactionRepository) Create(transaction *tx.Transaction) error {
 	rows, err := r.db.Prepare("INSERT INTO " +
-		transactionsTable + "(blockNumber, `from`, `to`, amount, hash) " +
+		transactionsTable + "(blockNumber, `to`, amount, hash, numConfirmation) " +
 		" VALUES(?, ?, ?, ?, ?)")
 	if err != nil {
 		return err
@@ -35,7 +35,9 @@ func (r *transactionRepository) Create(transaction *tx.Transaction) error {
 		transaction.BlockNumber,
 		transaction.To,
 		transaction.Amount,
-		transaction.Hash)
+		transaction.Hash,
+		transaction.NumConfirmation,
+	)
 	if err != nil {
 		return err
 	}
@@ -94,121 +96,8 @@ func (r *transactionRepository) GetAll(limit int) ([]tx.Transaction, error) {
 	return transactions, nil
 }
 
-func (r *transactionRepository) GetAddresses(limit int) ([]string, error) {
-	query := "SELECT `to` FROM " + transactionsTable + " WHERE isToPool = 0 ORDER BY id DESC "
-	limitQuery := "LIMIT " + strconv.Itoa(limit)
-	if limit > 0 {
-		query += limitQuery
-	}
-
-	rows, err := r.db.Query(query)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-
-	addresses := []string{}
-
-	for rows.Next() {
-		var to string
-
-		err = rows.Scan(&to)
-		if err != nil {
-			return nil, err
-		}
-
-		addresses = append(addresses, to)
-	}
-
-	return addresses, nil
-}
-
-func (r *transactionRepository) GetUnspentAddresses(limit int, exceptions []string) ([]string, error) {
-	var exceptionQuery string
-
-	for i, exceptionAddress := range exceptions {
-		exceptionQuery += "\"" + exceptionAddress + "\""
-		if i != len(exceptions)-1 {
-			exceptionQuery += ", "
-		}
-	}
-
-	query := "SELECT `to` FROM " + transactionsTable + " WHERE "
-	query += " `to` NOT IN (" + exceptionQuery + ") AND isToPool = 0 "
-	query += " ORDER BY id desc "
-	limitQuery := fmt.Sprintf("LIMIT %d", limit)
-
-	if limit > 0 {
-		query += limitQuery
-	}
-
-	rows, err := r.db.Query(query)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-
-	addresses := []string{}
-	addressesExist := map[string]bool{}
-
-	for rows.Next() {
-		var to string
-
-		err = rows.Scan(&to)
-		if err != nil {
-			return nil, err
-		}
-
-		if _, addressExists := addressesExist[to]; addressExists {
-			continue
-		}
-
-		addresses = append([]string{to}, addresses...)
-		addressesExist[to] = true
-	}
-
-	return addresses, nil
-}
-
-func (r *transactionRepository) UpdateUnspentAddresses(addresses string) error {
-	query := "UPDATE " + transactionsTable + " SET " +
-		" `isToPool` = 1 " +
-		" WHERE `to` IN (" + addresses + ") AND `isToPool` = 0"
-
-	rows, err := r.db.Query(query)
-	if err != nil {
-		return err
-	}
-	defer rows.Close()
-
-	return nil
-}
-
-func (r *transactionRepository) GetLatestNumConfirmations() (int, error) {
-	transaction := tx.Transaction{}
-
-	query := "SELECT NumConfirmation FROM " + transactionsTable + " ORDER BY NumConfirmation LIMIT 1"
-
-	rows, err := r.db.Query(query)
-	if err != nil {
-		return 0, err
-	}
-	defer rows.Close()
-
-	for rows.Next() {
-		err := rows.Scan(
-			&transaction.NumConfirmation,
-		)
-		if err != nil {
-			return 0, err
-		}
-	}
-
-	return transaction.NumConfirmation, nil
-}
-
 func (r *transactionRepository) GetConfTransactions(limit, conf int) ([]tx.Transaction, error) {
-	query := "SELECT * FROM " + transactionsTable + " WHERE NumConfirmation > " + strconv.Itoa(limit) + " ORDER BY id DESC "
+	query := "SELECT * FROM " + transactionsTable + " WHERE numConfirmation < " + strconv.Itoa(conf) + " ORDER BY id DESC "
 	limitQuery := "LIMIT " + strconv.Itoa(limit)
 	if limit > 0 {
 		query += limitQuery
@@ -236,9 +125,10 @@ func (r *transactionRepository) GetConfTransactions(limit, conf int) ([]tx.Trans
 
 func (r *transactionRepository) UpdateNumConfirmation(id int, numConfirmations int) error {
 	query := "UPDATE " + transactionsTable + " SET " +
-		" `NumConfirmation` = " + strconv.Itoa(numConfirmations) +
-		" WHERE `Id` " + strconv.Itoa(id)
+		" `numConfirmation` = " + strconv.Itoa(numConfirmations) +
+		" WHERE `Id` = " + strconv.Itoa(id)
 
+	fmt.Println(query)
 	rows, err := r.db.Query(query)
 	if err != nil {
 		return err
@@ -251,14 +141,13 @@ func (r *transactionRepository) UpdateNumConfirmation(id int, numConfirmations i
 func mapTransaction(rows *sql.Rows, transaction *tx.Transaction) error {
 	err := rows.Scan(
 		&transaction.Id,
+		&transaction.Hash,
 		&transaction.BlockNumber,
-		&transaction.NumConfirmation,
 		&transaction.To,
 		&transaction.Amount,
-		&transaction.Hash,
-		&transaction.IsToPool,
+		&transaction.NumConfirmation,
+		// &transaction.IsToPool,
 	)
-
 	if err != nil {
 		return err
 	}

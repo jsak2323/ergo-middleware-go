@@ -51,8 +51,8 @@ func GetTransactionById(idTx string) (GetTransactionByIdResp, error) {
 		logger.ErrorLog("GetTransactionById validation idTx err: empty id tx")
 		return response, errors.New("err: empty id tx")
 	}
-
-	transactionsWalletURL := fmt.Sprintf("%s/wallet/transactionById?id=", idTx)
+	transactionsWalletURL := fmt.Sprintf("%s/wallet/transactionById?id=%s",
+		config.CONF.NodeJsonHtppUrl, idTx)
 
 	restyClient := resty.New()
 	res, err := restyClient.SetCloseConnection(true).R().
@@ -65,13 +65,18 @@ func GetTransactionById(idTx string) (GetTransactionByIdResp, error) {
 		return response, err
 	}
 
-	unmarshalErr := json.Unmarshal(res.Body(), &response)
+	unmarshalErr := json.Unmarshal(res.Body(), &response.Resp)
 	if unmarshalErr != nil {
 		logger.ErrorLog("GetTransactionById json.Unmarshal([]byte(res), &responseExp) err: " + unmarshalErr.Error())
 		return response, unmarshalErr
 	}
 
 	if res.StatusCode() != 200 {
+		unmarshalErr := json.Unmarshal(res.Body(), &response)
+		if unmarshalErr != nil {
+			logger.ErrorLog("GetTransactionById json.Unmarshal([]byte(res), &responseExp) err: " + unmarshalErr.Error())
+			return response, unmarshalErr
+		}
 		logger.ErrorLog("GetTransactionById, err: " + response.Detail)
 		return response, errors.New(response.Detail)
 	}

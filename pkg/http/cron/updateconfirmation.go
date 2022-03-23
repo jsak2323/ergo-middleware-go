@@ -23,7 +23,7 @@ func (cron *ErgoCron) UpdateConfirmations(w http.ResponseWriter, req *http.Reque
 
 		transaction, err := ergo.GetTransactionById(tx.Hash)
 		if err != nil {
-			logger.ErrorLog("UpdateConfirmations ergo.ListTransactions(blckNum, blckNum, 0) err: " + err.Error())
+			logger.ErrorLog("UpdateConfirmations ergo.GetTransactionById(tx.Hash) err: " + err.Error())
 			continue
 		}
 

@@ -73,13 +73,18 @@ func ListTransactions(minInclusionHeight, maxInclusionHeight int64) (ListTransac
 		return response, err
 	}
 
-	unmarshalErr := json.Unmarshal(res.Body(), &response)
+	unmarshalErr := json.Unmarshal(res.Body(), &response.Resp)
 	if unmarshalErr != nil {
 		logger.ErrorLog("ListTransactions json.Unmarshal([]byte(res), &responseExp) err: " + unmarshalErr.Error())
 		return response, unmarshalErr
 	}
 
 	if res.StatusCode() != 200 {
+		unmarshalErr := json.Unmarshal(res.Body(), &response.Error)
+		if unmarshalErr != nil {
+			logger.ErrorLog("ListTransactions json.Unmarshal([]byte(res), &responseExp) err: " + unmarshalErr.Error())
+			return response, unmarshalErr
+		}
 		logger.ErrorLog("ListTransactions, err: " + response.Detail)
 		return response, errors.New(response.Detail)
 	}
