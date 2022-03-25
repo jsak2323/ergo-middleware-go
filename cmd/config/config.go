@@ -35,11 +35,10 @@ type Configuration struct {
 	NodeJsonHtppUrl    string `json:"node_jsonhttp_url"`
 	NodeJsonHtppApiKey string `json:"node_jsonhttp_api_key"`
 
-	WalletPassword string `json:"wallet_pass"`
-
-	MainAddress string  `json:"main_address"`
-	FeeDefault  float64 `json:"fee_default"`
-	MinClearing float64 `json:"min_clearing"`
+	MainAddress    string  `json:"main_address"`
+	AddressFeeInit string  `json:"address_fee_init"`
+	FeeDefault     float64 `json:"fee_default"`
+	MinClearing    float64 `json:"min_clearing"`
 
 	MysqlDbUser string `json:"mysql_db_user"`
 	MysqlDbPass string `json:"mysql_db_pass"`

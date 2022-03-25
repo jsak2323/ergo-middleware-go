@@ -17,6 +17,7 @@ type ListTransactionsResStruct struct {
 }
 
 type ListTransactionsTx struct {
+	From          string `json:"from"`
 	To            string `json:"to"`
 	Hash          string `json:"hash"`
 	Amount        string `json:"amount"`
@@ -39,6 +40,7 @@ func (r *ERGORpc) ListTransactions(req *http.Request, args *RpcReq, reply *ListT
 	for _, ergoTransaction := range ergoTransactions {
 
 		listTransactionTx := ListTransactionsTx{
+			From:          ergoTransaction.From,
 			To:            ergoTransaction.To,
 			Hash:          ergoTransaction.To,
 			Amount:        ergoTransaction.Amount,

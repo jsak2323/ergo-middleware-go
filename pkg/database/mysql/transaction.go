@@ -24,7 +24,7 @@ func NewMysqlTransactionRepository(db *sql.DB) tx.TransactionRepository {
 
 func (r *transactionRepository) Create(transaction *tx.Transaction) error {
 	rows, err := r.db.Prepare("INSERT INTO " +
-		transactionsTable + "(blockNumber, `to`, amount, hash, numConfirmation) " +
+		transactionsTable + "(blockNumber, `from`, `to`, amount, hash, numConfirmation) " +
 		" VALUES(?, ?, ?, ?, ?)")
 	if err != nil {
 		return err
@@ -33,6 +33,7 @@ func (r *transactionRepository) Create(transaction *tx.Transaction) error {
 
 	res, err := rows.Exec(
 		transaction.BlockNumber,
+		transaction.From,
 		transaction.To,
 		transaction.Amount,
 		transaction.Hash,
@@ -143,6 +144,7 @@ func mapTransaction(rows *sql.Rows, transaction *tx.Transaction) error {
 		&transaction.Id,
 		&transaction.Hash,
 		&transaction.BlockNumber,
+		&transaction.From,
 		&transaction.To,
 		&transaction.Amount,
 		&transaction.NumConfirmation,

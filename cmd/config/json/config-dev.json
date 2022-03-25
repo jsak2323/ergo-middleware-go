@@ -1,28 +1,18 @@
 {
-    "rpc_user"      : "ifan",
+    "rpc_user"      : "jason",
     "rpc_pass"      : "testpass",
     "rpc_port"      : "3000",
     "rpc_hashkey"   : "testhashkey",
 
-    "node_jsonrpc_url" : "http://127.0.0.1:7116",
-    "node_rpc_user"    : "test",
-    "node_encrypted_rpc_pass" : "7bbb84e4a3c2990556ffee6a15f3d5b5593fc46d052abd2b78638c28fb3ca386",
-
     "node_jsonhttp_url" : "http://127.0.0.1:9052",
     "node_jsonhttp_api_key" : "hello",
-    "wallet_pass" :"ergotest",
 
-    "second_node_jsonrpc_url" : "http://127.0.0.1:7116",
-    "second_node_rpc_user"    : "",
-    "second_node_encrypted_rpc_pass" : "",
-
-    "second_node_enable" : false,
-
-    "encrypted_passphrase" : "7bbb84e4a3c2990556ffee6a15f3d5b5593fc46d052abd2b78638c28fb3ca386", 
+    "encrypted_passphrase" : "9e0f757a5ba5e0d43a92f4cc93e137bea4a1c340b6d1613fca00bdfdf38401e444116397", 
     "encryption_key"       : "tujDoivCitCiHaccoujhomyudrevPidd",
 
     "main_address"         : "RFFkTBhahhqHJVTjG9qwot6ZSxE89v9NSn",
-    "fee_default"          : 0.01,
+    "fee_default"          : 0.001,
+    "address_fee_init"     : "Bf1",
     "min_clearing"         : 0.02,
 
     "mysql_db_user" :   "root",

@@ -1,6 +1,7 @@
 package cron
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -8,6 +9,7 @@ import (
 
 	"github.com/gorilla/mux"
 
+	"github.com/btcid/ergo-middleware-go/cmd/config"
 	mbl "github.com/btcid/ergo-middleware-go/pkg/domain/blocks"
 	mtx "github.com/btcid/ergo-middleware-go/pkg/domain/transaction"
 	"github.com/btcid/ergo-middleware-go/pkg/lib/ergo"
@@ -19,6 +21,14 @@ import (
 // scan by wallet/transaction by minInclusionHeight by block count db - valid block && maxInclusionHeight =get block count
 // insert to transactions
 // update last block nums with get block count)
+
+// 2 data: luar & indodax = depo
+// —
+// 2 data: indodax & indodax = skip
+// —
+// 3 data: luar & ke 2 akun indodax = depo
+// —
+// 2 data: luar & mainaddress = skip
 
 func (cron *ErgoCron) ScanBlockAndUpdateTransactions(w http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
@@ -106,59 +116,144 @@ func (cron *ErgoCron) saveTransactions(blockDBConv, blockCountNode int64) (txCou
 		for i := len(transactions.Resp) - 1; i >= 0; i-- {
 			var (
 				transaction = transactions.Resp[i]
-				txFound     = false
 			)
 
-			if len(transaction.Outputs) > 1 {
-				for _, subtx := range transaction.Outputs {
+			// 2 data: luar & indodax = depo
+			// —
+			// 2 data: indodax & indodax = skip
+			// —
+			// 3 data: luar & ke 2 akun indodax = depo
+			// —
+			// 2 data: luar & mainaddress = skip
 
-					if !txFound {
-						trxDBResp, err := cron.transactionRepo.GetByHashAndAddress(transaction.ID, subtx.Address)
-						if err != nil {
-							logger.ErrorLog("scanTransactions cron.transactionRepo.GetByHashAndAddress(transaction.ID, subtx.Address), err: " + err.Error())
-							return txCount, blockNum, err
-						}
+			valid, err := cron.validateTransactions(transaction)
+			if err != nil {
+				logger.ErrorLog("scanTransactions cron.validateTransactions(transaction), err: " + err.Error())
+				return txCount, blockNum, err
+			}
 
-						if trxDBResp.Hash != "" {
-							logger.Log(" -- Tx with hash: " + trxDBResp.Hash + ", address: " + subtx.Address + " already exists, skipping ...")
-							continue
-						}
+			if valid {
 
-						address, err := cron.addressRepo.GetByAddress(subtx.Address)
-						if err != nil {
-							logger.ErrorLog("scanTransactions cron.addressRepo.GetByAddress(subtx.Address), err: " + err.Error())
-							return txCount, blockNum, err
-						}
-
-						if address.Address != "" {
-
-							balTemp := strconv.FormatInt(subtx.Value, 10)
-							balance := util.RawToDecimal(balTemp, 9)
-							createTx := &mtx.Transaction{
-								NumConfirmation: transaction.NumConfirmations,
-								BlockNumber:     strconv.FormatInt(transaction.InclusionHeight, 10),
-								To:              subtx.Address,
-								Amount:          balance,
-								Hash:            transaction.ID,
-							}
-
-							logger.Log(" -- Inserting new ERGO Transaction (" + transaction.ID + ") ... ")
-							err := cron.transactionRepo.Create(createTx)
-							if err != nil {
-								logger.ErrorLog("scanTransactions ron.transactionRepo.Create(createTx), err: " + err.Error())
-								return txCount, blockNum, err
-							}
-							logger.Log(" -- New ERGO Tx with hash: " + transaction.ID + " inserted successfully.")
-							txFound = true
-							txCount++
-						}
-
-					}
-
+				done, err := cron.insertTransactions(transaction)
+				if err != nil {
+					logger.ErrorLog("scanTransactions cron.insertTransactions(transaction), err: " + err.Error())
+					return txCount, blockNum, err
+				}
+				if done {
+					txCount++
 				}
 			}
+
 			blockNum = transaction.InclusionHeight
 		}
 	}
 	return txCount, blockNum, nil
+}
+
+func (cron *ErgoCron) insertTransactions(transaction ergo.ListTransactionResp) (bool, error) {
+	var (
+		from   string
+		to     string
+		amount string
+	)
+	for _, subtx := range transaction.Outputs {
+
+		trxDBResp, err := cron.transactionRepo.GetByHashAndAddress(transaction.ID, subtx.Address)
+		if err != nil {
+			logger.ErrorLog("scanTransactions cron.transactionRepo.GetByHashAndAddress(transaction.ID, subtx.Address), err: " + err.Error())
+			return false, err
+		}
+
+		if trxDBResp.Hash != "" {
+			logger.Log(" -- Tx with hash: " + trxDBResp.Hash + ", address: " + subtx.Address + " already exists, skipping ...")
+			break
+		}
+
+		address, err := cron.addressRepo.GetByAddress(subtx.Address)
+		if err != nil {
+			logger.ErrorLog("scanTransactions cron.addressRepo.GetByAddress(subtx.Address), err: " + err.Error())
+			return false, err
+		}
+
+		if address.Address == "" {
+			from = subtx.Address
+		} else if address.Address == "" && address.Address[0:3] != config.CONF.AddressFeeInit {
+			to = subtx.Address
+			balTemp := strconv.FormatInt(subtx.Value, 10)
+			balance := util.RawToDecimal(balTemp, 9)
+			amount = balance
+		}
+	}
+	if from != "" && to != "" && amount != "" {
+
+		createTx := &mtx.Transaction{
+			NumConfirmation: transaction.NumConfirmations,
+			BlockNumber:     strconv.FormatInt(transaction.InclusionHeight, 10),
+			From:            from,
+			To:              to,
+			Amount:          amount,
+			Hash:            transaction.ID,
+		}
+
+		logger.Log(" -- Inserting new ERGO Transaction (" + transaction.ID + ") ... ")
+		err := cron.transactionRepo.Create(createTx)
+		if err != nil {
+			logger.ErrorLog("scanTransactions ron.transactionRepo.Create(createTx), err: " + err.Error())
+			return false, err
+		}
+		logger.Log(" -- New ERGO Tx with hash: " + transaction.ID + " inserted successfully.")
+	}
+
+	return false, nil
+}
+
+func (cron *ErgoCron) validateTransactions(req ergo.ListTransactionResp) (result bool, err error) {
+
+	var (
+		externalAddress int
+		internalAddress int
+	)
+	if len(req.Outputs) > 4 {
+		err = errors.New("scan transactions, multi payment cant included to transactions")
+		return false, err
+	}
+
+	for _, subtx := range req.Outputs {
+
+		if subtx.Address[0:3] == config.CONF.AddressFeeInit {
+			continue
+		}
+		if subtx.Address == config.CONF.MainAddress {
+			err = errors.New("scan transactions, main address cant be inserted to transactions")
+			return false, err
+		}
+
+		address, err := cron.addressRepo.GetByAddress(subtx.Address)
+		if err != nil {
+			logger.ErrorLog("scanTransactions cron.addressRepo.GetByAddress(subtx.Address), err: " + err.Error())
+			return false, err
+		}
+
+		if address.Address != "" {
+			internalAddress++
+		} else {
+			externalAddress++
+		}
+
+	}
+
+	// 2 data: luar & mainaddress = skip 3
+	// -
+	// 2 data: indodax & indodax = skip 3
+	// —
+	// 2 data: luar & indodax = depo 3 -> luar from, indodax to
+	// —
+	// 3 data: luar & ke 2 akun indodax = depo 4 -> luar from , indodax to 1 aja
+	// —
+
+	if externalAddress == 1 && internalAddress >= 1 {
+		return true, nil
+	}
+
+	return false, nil
 }

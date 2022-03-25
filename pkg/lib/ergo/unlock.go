@@ -1,6 +1,7 @@
 package ergo
 
 import (
+	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -8,6 +9,7 @@ import (
 	"github.com/go-resty/resty/v2"
 
 	"github.com/btcid/ergo-middleware-go/cmd/config"
+	"github.com/btcid/ergo-middleware-go/pkg/lib/util"
 	logger "github.com/btcid/ergo-middleware-go/pkg/logging"
 )
 
@@ -19,8 +21,15 @@ func UnlockWallet() error {
 
 	response := Err{}
 
+	encryptedPassBytes, _ := hex.DecodeString(config.CONF.EncryptedPassphrase)
+	decryptedWalletPass, err := util.Decrypt(encryptedPassBytes, []byte(config.CONF.EncryptionKey))
+	if err != nil {
+		logger.ErrorLog("UnLockWallet util.Decrypt(encryptedPassBytes, []byte(config.CONF.EncryptionKey)) err: " + err.Error())
+		return err
+	}
+
 	reqJson, err := json.Marshal(unlockReq{
-		Pass: config.CONF.WalletPassword,
+		Pass: string(decryptedWalletPass),
 	})
 	if err != nil {
 		logger.ErrorLog("UnLockWallet json.Marshal(req) err: " + err.Error())

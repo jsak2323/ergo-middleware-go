@@ -14,7 +14,6 @@ package cron
 // )
 
 // func (tc *ergoCron) CollectDust(w http.ResponseWriter, req *http.Request) {
-
 // 	unspents, err := ergo.ListUnspent()
 // 	if err != nil {
 // 		tc.handleError("ergo.ListUnspent()", err)

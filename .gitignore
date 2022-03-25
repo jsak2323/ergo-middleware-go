@@ -5,3 +5,4 @@ main
 logs/
 cmd/config/json/config.json
 
+*.bak
