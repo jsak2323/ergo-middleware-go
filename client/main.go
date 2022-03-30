@@ -32,6 +32,9 @@ func main() {
 	case "getbalance":
 		methods.GetBalance()
 
+	case "scantransactions":
+		methods.ScanTransactions()
+
 	case "listtransactions":
 		limit := ""
 		if len(os.Args) >= 3 {

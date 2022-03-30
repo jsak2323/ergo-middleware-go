@@ -32,7 +32,7 @@ func SetRoutes(r *mux.Router, mysqlDbConn *sql.DB) {
 
 	// XMLRPC SERVICE
 	xmlCodec := xml.NewCodec()
-	ergoXmlRpcService := httprpc.NewERGORpc(addressRepo, transactionRepo)
+	ergoXmlRpcService := httprpc.NewERGORpc(addressRepo, transactionRepo, blocksRepo)
 	ergoXmlRpcServer := rpc.NewServer()
 	ergoXmlRpcServer.RegisterCodec(xmlCodec, "text/xml")
 	ergoXmlRpcServer.RegisterBeforeFunc(rpcBeforeFunc)
@@ -44,7 +44,7 @@ func SetRoutes(r *mux.Router, mysqlDbConn *sql.DB) {
 	ergoCronService := httpcron.NewErgoCron(addressRepo, transactionRepo, blocksRepo)
 
 	_ = ergoCronService
-	r.HandleFunc("/cron/scan_transactions", ergoCronService.ScanBlockAndUpdateTransactions)
+	r.HandleFunc("/cron/scan_transactions/{blocknum}", ergoCronService.ScanBlockAndUpdateTransactions)
 	r.HandleFunc("/cron/update_confirmations", ergoCronService.UpdateConfirmations)
 	// r.HandleFunc("/cron/collect_dust", ergoCronService.CollectDust)
 
