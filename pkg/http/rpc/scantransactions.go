@@ -201,7 +201,7 @@ func (rpc *ERGORpc) insertTransactions(transaction ergo.ListTransactionResp) (bo
 		logger.Log(" -- New ERGO Tx with hash: " + transaction.ID + " inserted successfully.")
 	}
 
-	return false, nil
+	return true, nil
 }
 
 func (rpc *ERGORpc) validateTransactions(req ergo.ListTransactionResp) (result bool, err error) {

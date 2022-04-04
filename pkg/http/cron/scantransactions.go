@@ -204,7 +204,7 @@ func (cron *ErgoCron) insertTransactions(transaction ergo.ListTransactionResp) (
 		logger.Log(" -- New ERGO Tx with hash: " + transaction.ID + " inserted successfully.")
 	}
 
-	return false, nil
+	return true, nil
 }
 
 func (cron *ErgoCron) validateTransactions(req ergo.ListTransactionResp) (result bool, err error) {

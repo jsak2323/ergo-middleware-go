@@ -25,7 +25,7 @@ func NewMysqlTransactionRepository(db *sql.DB) tx.TransactionRepository {
 func (r *transactionRepository) Create(transaction *tx.Transaction) error {
 	rows, err := r.db.Prepare("INSERT INTO " +
 		transactionsTable + "(blockNumber, `from`, `to`, amount, hash, numConfirmation) " +
-		" VALUES(?, ?, ?, ?, ?)")
+		" VALUES(?, ?, ?, ?, ?, ?)")
 	if err != nil {
 		return err
 	}
