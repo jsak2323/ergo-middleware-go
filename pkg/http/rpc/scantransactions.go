@@ -126,7 +126,7 @@ func (rpc *ERGORpc) saveTransactions(blockDBConv, blockCountNode int64) (txCount
 			valid, err := rpc.validateTransactions(transaction)
 			if err != nil {
 				logger.ErrorLog("ScanTransactions rpc.validateTransactions(transaction), err: " + err.Error())
-				return txCount, blockNum, err
+				// return txCount, blockNum, err
 			}
 
 			if valid {

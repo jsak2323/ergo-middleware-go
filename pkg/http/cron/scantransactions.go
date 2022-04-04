@@ -129,7 +129,7 @@ func (cron *ErgoCron) saveTransactions(blockDBConv, blockCountNode int64) (txCou
 			valid, err := cron.validateTransactions(transaction)
 			if err != nil {
 				logger.ErrorLog("scanTransactions cron.validateTransactions(transaction), err: " + err.Error())
-				return txCount, blockNum, err
+				// return txCount, blockNum, err
 			}
 
 			if valid {
@@ -177,7 +177,7 @@ func (cron *ErgoCron) insertTransactions(transaction ergo.ListTransactionResp) (
 
 		if address.Address == "" {
 			from = subtx.Address
-		} else if address.Address == "" && address.Address[0:3] != config.CONF.AddressFeeInit {
+		} else if address.Address != "" && address.Address[0:3] != config.CONF.AddressFeeInit {
 			to = subtx.Address
 			balTemp := strconv.FormatInt(subtx.Value, 10)
 			balance := util.RawToDecimal(balTemp, 9)
