@@ -148,7 +148,6 @@ func mapTransaction(rows *sql.Rows, transaction *tx.Transaction) error {
 		&transaction.To,
 		&transaction.Amount,
 		&transaction.NumConfirmation,
-		// &transaction.IsToPool,
 	)
 	if err != nil {
 		return err

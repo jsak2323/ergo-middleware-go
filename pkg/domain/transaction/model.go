@@ -8,5 +8,4 @@ type Transaction struct {
 	To              string
 	Amount          string
 	Hash            string
-	IsToPool        int
 }

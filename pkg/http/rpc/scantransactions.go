@@ -174,7 +174,7 @@ func (rpc *ERGORpc) insertTransactions(transaction ergo.ListTransactionResp) (bo
 
 		if address.Address == "" {
 			from = subtx.Address
-		} else if address.Address == "" && address.Address[0:3] != config.CONF.AddressFeeInit {
+		} else if address.Address != "" && address.Address[0:3] != config.CONF.AddressFeeInit {
 			to = subtx.Address
 			balTemp := strconv.FormatInt(subtx.Value, 10)
 			balance := util.RawToDecimal(balTemp, 9)
