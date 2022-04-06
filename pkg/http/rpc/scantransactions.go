@@ -38,7 +38,6 @@ type ScanTransactionsResStruct struct {
 }
 
 func (rpc *ERGORpc) ScanTransactions(req *http.Request, args *RpcReq, reply *ScanTransactionsRes) (err error) {
-	defer req.Body.Close()
 	var (
 		start   = time.Now()
 		txCount = 0
@@ -53,7 +52,6 @@ func (rpc *ERGORpc) ScanTransactions(req *http.Request, args *RpcReq, reply *Sca
 	}
 	blockDBConv, _ := strconv.ParseInt(lastBlock.LastUpdatedBlockNum, 10, 64)
 
-	// scan by wallet/transaction by minInclusionHeight by block count db - valid block && maxInclusionHeight =get block count
 	err = ergo.UnlockWallet()
 	if err != nil {
 		logger.ErrorLog("ScanTransactions unlock wallet. err: " + err.Error())
@@ -61,7 +59,10 @@ func (rpc *ERGORpc) ScanTransactions(req *http.Request, args *RpcReq, reply *Sca
 		return err
 	}
 
-	defer ergo.LockWallet()
+	defer func() {
+		ergo.LockWallet()
+		req.Body.Close()
+	}()
 
 	// insert transactions
 	txCount, blockNumTx, err := rpc.saveTransactions(blockDBConv, 0)

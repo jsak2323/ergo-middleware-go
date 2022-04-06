@@ -18,7 +18,7 @@ CREATE TABLE blocks (
   lastUpdatedBlockNum   VARCHAR(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
--- INSERT INTO blocks (lastUpdateTime, lastUpdatedBlockNum) VALUES (1642670451, '11215055');
+INSERT INTO blocks (lastUpdateTime, lastUpdatedBlockNum) VALUES (1642670451, '720494');
 
 CREATE TABLE addresses (
   id            INT(11) NOT NULL AUTO_INCREMENT,

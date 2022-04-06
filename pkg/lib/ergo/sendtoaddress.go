@@ -19,7 +19,7 @@ type (
 	}
 )
 
-func SendToAddress(address string, amountInDecimal string) (string, error) {
+func SendToAddress(amountInDecimal string, address string) (string, error) {
 	var txHash string
 
 	balance := util.DecimalToRaw(amountInDecimal, 9)
@@ -34,6 +34,12 @@ func SendToAddress(address string, amountInDecimal string) (string, error) {
 			Value:   amount.Int64(),
 		},
 	}
+
+	fmt.Println("address ", address)
+	fmt.Println("amount req ", amountInDecimal)
+	fmt.Println("balance ", balance)
+	fmt.Println("amount ", amount)
+	fmt.Println("amount.INT64 ", amount.Int64())
 
 	reqJson, err := json.Marshal(reqBody)
 	if err != nil {

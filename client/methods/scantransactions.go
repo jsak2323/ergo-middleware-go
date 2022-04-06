@@ -22,5 +22,7 @@ func ScanTransactions() string {
 		fmt.Println("Error: " + reply.Content.Error)
 	}
 
+	fmt.Println(" - Scan transactions Finished with Total Ergo : " + reply.Content.CountTx + " new txs. ---")
+
 	return reply.Content.CountTx
 }
