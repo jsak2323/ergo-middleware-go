@@ -33,12 +33,12 @@ func SetRoutes(r *mux.Router, mysqlDbConn *sql.DB) {
 	// XMLRPC SERVICE
 	xmlCodec := xml.NewCodec()
 	ergoXmlRpcService := httprpc.NewERGORpc(addressRepo, transactionRepo, blocksRepo)
-	ergoXmlRpcServer := rpc.NewServer()
-	ergoXmlRpcServer.RegisterCodec(xmlCodec, "text/xml")
-	ergoXmlRpcServer.RegisterBeforeFunc(rpcBeforeFunc)
-	ergoXmlRpcServer.RegisterService(ergoXmlRpcService, "")
-	ergoXmlRpcServer.RegisterAfterFunc(rpcAfterFunc)
-	r.Handle("/xmlrpc", ergoXmlRpcServer)
+	ErgoXmlRpcServer := rpc.NewServer()
+	ErgoXmlRpcServer.RegisterCodec(xmlCodec, "text/xml")
+	ErgoXmlRpcServer.RegisterBeforeFunc(rpcBeforeFunc)
+	ErgoXmlRpcServer.RegisterService(ergoXmlRpcService, "")
+	ErgoXmlRpcServer.RegisterAfterFunc(rpcAfterFunc)
+	r.Handle("/xmlrpc", ErgoXmlRpcServer)
 
 	// CRON ROUTES
 	ergoCronService := httpcron.NewErgoCron(addressRepo, transactionRepo, blocksRepo)

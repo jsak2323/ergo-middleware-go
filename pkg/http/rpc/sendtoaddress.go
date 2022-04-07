@@ -15,7 +15,7 @@ type SendToAddressResStruct struct {
 	Error  string
 }
 
-func (r *ERGORpc) SendToAddress(req *http.Request, args *RpcReq, reply *SendToAddressRes) error {
+func (rpc *ERGORpc) SendToAddress(req *http.Request, args *RpcReq, reply *SendToAddressRes) error {
 	err := ergo.UnlockWallet()
 	if err != nil {
 		logger.ErrorLog("SendToAddress -- ergo.UnlockWallet(), err: " + err.Error())

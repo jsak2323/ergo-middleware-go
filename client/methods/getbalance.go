@@ -13,7 +13,7 @@ func GetBalance() string {
 	rpcReq := GenerateRpcReq("", "", "")
 
 	xmlrpcClient := NewXmlRpcClient("localhost", config.CONF.RpcPort, "/xmlrpc")
-	err := xmlrpcClient.XmlRpcCall("ERGORpc.GetBalance", &rpcReq, &reply)
+	err := xmlrpcClient.XmlRpcCall("ERGRpc.GetBalance", &rpcReq, &reply)
 	if err != nil {
 		fmt.Println("xmlrpcClient.XmlRpcCall(\"ERGORpc.GetBalance\", &rpcReq, &reply) err: " + err.Error())
 	}

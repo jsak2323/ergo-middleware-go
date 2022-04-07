@@ -24,13 +24,13 @@ type ListTransactionsTx struct {
 	Confirmations int    `json:"confirmations"`
 }
 
-func (r *ERGORpc) ListTransactions(req *http.Request, args *RpcReq, reply *ListTransactionsRes) error {
+func (rpc *ERGORpc) ListTransactions(req *http.Request, args *RpcReq, reply *ListTransactionsRes) error {
 	defer req.Body.Close()
 
 	listTransactionTxs := []ListTransactionsTx{}
 	maxConfirmations := 20
 
-	ergoTransactions, err := r.transactionRepo.GetAll(maxConfirmations)
+	ergoTransactions, err := rpc.transactionRepo.GetAll(maxConfirmations)
 	if err != nil {
 		logger.ErrorLog("ListTransactions ergo.ListTransactions(limit) err: " + err.Error())
 		reply.Content.Error = err.Error()
