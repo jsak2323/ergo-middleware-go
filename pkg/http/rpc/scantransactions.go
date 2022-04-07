@@ -130,6 +130,7 @@ func (rpc *ERGRpc) saveTransactions(blockDBConv, blockCountNode int64) (txCount 
 				// return txCount, blockNum, err
 			}
 
+			fmt.Println(i, "tx", transaction.ID, valid)
 			if valid {
 
 				done, err := rpc.insertTransactions(transaction)
@@ -150,9 +151,10 @@ func (rpc *ERGRpc) saveTransactions(blockDBConv, blockCountNode int64) (txCount 
 
 func (rpc *ERGRpc) insertTransactions(transaction ergo.ListTransactionResp) (bool, error) {
 	var (
-		from   string
-		to     string
-		amount string
+		from    *string
+		to      string
+		amount  string
+		countTx int
 	)
 	for _, subtx := range transaction.Outputs {
 
@@ -174,15 +176,19 @@ func (rpc *ERGRpc) insertTransactions(transaction ergo.ListTransactionResp) (boo
 		}
 
 		if address.Address == "" {
-			from = subtx.Address
-		} else if address.Address != "" && address.Address[0:3] != config.CONF.AddressFeeInit {
+			from = &subtx.Address
+		} else if address.Address != "" && address.Address[0:2] != config.CONF.AddressFeeInit {
 			to = subtx.Address
 			balTemp := strconv.FormatInt(subtx.Value, 10)
 			balance := util.RawToDecimal(balTemp, 9)
 			amount = balance
 		}
 	}
-	if from != "" && to != "" && amount != "" {
+
+	countTx++
+	if (countTx == len(transaction.Outputs) || from != nil) && to != "" && amount != "" {
+		// }
+		// if from != "" && to != "" && amount != "" {
 
 		createTx := &mtx.Transaction{
 			NumConfirmation: transaction.NumConfirmations,
@@ -218,7 +224,7 @@ func (rpc *ERGRpc) validateTransactions(req ergo.ListTransactionResp) (result bo
 
 	for _, subtx := range req.Outputs {
 
-		if subtx.Address[0:3] == config.CONF.AddressFeeInit {
+		if subtx.Address[0:2] == config.CONF.AddressFeeInit {
 			continue
 		}
 		if subtx.Address == config.CONF.MainAddress {
@@ -249,7 +255,10 @@ func (rpc *ERGRpc) validateTransactions(req ergo.ListTransactionResp) (result bo
 	// 3 data: luar & ke 2 akun indodax = depo 4 -> luar from , indodax to 1 aja
 	// —
 
-	if externalAddress == 1 && internalAddress >= 1 {
+	// if externalAddress == 1 && internalAddress >= 1 {
+	// 	return true, nil
+	// }
+	if internalAddress >= 1 {
 		return true, nil
 	}
 

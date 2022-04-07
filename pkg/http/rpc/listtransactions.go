@@ -40,7 +40,7 @@ func (rpc *ERGRpc) ListTransactions(req *http.Request, args *RpcReq, reply *List
 	for _, ergoTransaction := range ergoTransactions {
 
 		listTransactionTx := ListTransactionsTx{
-			From:          ergoTransaction.From,
+			From:          *ergoTransaction.From,
 			To:            ergoTransaction.To,
 			Hash:          ergoTransaction.To,
 			Amount:        ergoTransaction.Amount,

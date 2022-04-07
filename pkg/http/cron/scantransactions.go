@@ -189,7 +189,7 @@ func (cron *ErgoCron) insertTransactions(transaction ergo.ListTransactionResp) (
 		createTx := &mtx.Transaction{
 			NumConfirmation: transaction.NumConfirmations,
 			BlockNumber:     strconv.FormatInt(transaction.InclusionHeight, 10),
-			From:            from,
+			From:            &from,
 			To:              to,
 			Amount:          amount,
 			Hash:            transaction.ID,

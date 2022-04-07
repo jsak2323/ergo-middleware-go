@@ -12,7 +12,7 @@
 
     "main_address"         : "9hsdSvdj9rqnzUszqyFzQwSE9qVu8eZ3Quv73xpKSFxCpMgueBm",
     "fee_default"          : 0.001,
-    "address_fee_init"     : "2iH",
+    "address_fee_init"     : "2i",
     "min_clearing"         : 0.02,
 
     "mysql_db_user" :   "root",
