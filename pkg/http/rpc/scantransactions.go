@@ -37,7 +37,7 @@ type ScanTransactionsResStruct struct {
 	Error   string
 }
 
-func (rpc *ERGORpc) ScanTransactions(req *http.Request, args *RpcReq, reply *ScanTransactionsRes) (err error) {
+func (rpc *ERGRpc) ScanTransactions(req *http.Request, args *RpcReq, reply *ScanTransactionsRes) (err error) {
 	var (
 		start   = time.Now()
 		txCount = 0
@@ -98,7 +98,7 @@ func (rpc *ERGORpc) ScanTransactions(req *http.Request, args *RpcReq, reply *Sca
 	return nil
 }
 
-func (rpc *ERGORpc) saveTransactions(blockDBConv, blockCountNode int64) (txCount int, blockNum int64, err error) {
+func (rpc *ERGRpc) saveTransactions(blockDBConv, blockCountNode int64) (txCount int, blockNum int64, err error) {
 	if blockDBConv >= 15 {
 		blockDBConv -= 15
 	}
@@ -148,7 +148,7 @@ func (rpc *ERGORpc) saveTransactions(blockDBConv, blockCountNode int64) (txCount
 	return txCount, blockNum, nil
 }
 
-func (rpc *ERGORpc) insertTransactions(transaction ergo.ListTransactionResp) (bool, error) {
+func (rpc *ERGRpc) insertTransactions(transaction ergo.ListTransactionResp) (bool, error) {
 	var (
 		from   string
 		to     string
@@ -205,7 +205,7 @@ func (rpc *ERGORpc) insertTransactions(transaction ergo.ListTransactionResp) (bo
 	return true, nil
 }
 
-func (rpc *ERGORpc) validateTransactions(req ergo.ListTransactionResp) (result bool, err error) {
+func (rpc *ERGRpc) validateTransactions(req ergo.ListTransactionResp) (result bool, err error) {
 
 	var (
 		externalAddress int

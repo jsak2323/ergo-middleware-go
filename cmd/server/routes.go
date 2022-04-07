@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"fmt"
 
 	"github.com/divan/gorilla-xmlrpc/xml"
 	"github.com/gorilla/mux"
@@ -16,11 +17,13 @@ import (
 
 func rpcBeforeFunc(ri *rpc.RequestInfo) {
 	var req = ri.Request
+	fmt.Println("rpcBeforeFunc", ri)
 	logger.InfoLog(ri.Method+" hit.--------------", req)
 }
 
 func rpcAfterFunc(ri *rpc.RequestInfo) {
 	var req = ri.Request
+	fmt.Println("rpcAfterFunc", ri)
 	logger.InfoLog(ri.Method+" done.--------------", req)
 }
 
@@ -32,7 +35,7 @@ func SetRoutes(r *mux.Router, mysqlDbConn *sql.DB) {
 
 	// XMLRPC SERVICE
 	xmlCodec := xml.NewCodec()
-	ergoXmlRpcService := httprpc.NewERGORpc(addressRepo, transactionRepo, blocksRepo)
+	ergoXmlRpcService := httprpc.NewERGRpc(addressRepo, transactionRepo, blocksRepo)
 	ErgoXmlRpcServer := rpc.NewServer()
 	ErgoXmlRpcServer.RegisterCodec(xmlCodec, "text/xml")
 	ErgoXmlRpcServer.RegisterBeforeFunc(rpcBeforeFunc)

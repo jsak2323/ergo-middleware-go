@@ -13,9 +13,9 @@ func ListTransactions(limit string) string {
 	rpcReq := GenerateRpcReq(limit, "", "")
 
 	xmlrpcClient := NewXmlRpcClient("localhost", config.CONF.RpcPort, "/xmlrpc")
-	err := xmlrpcClient.XmlRpcCall("ERGORpc.ListTransactions", &rpcReq, &reply)
+	err := xmlrpcClient.XmlRpcCall("ERGRpc.ListTransactions", &rpcReq, &reply)
 	if err != nil {
-		fmt.Println("xmlrpcClient.XmlRpcCall(\"ERGORpc.ListTransactions\", &rpcReq, &reply) err: " + err.Error())
+		fmt.Println("xmlrpcClient.XmlRpcCall(\"ERGRpc.ListTransactions\", &rpcReq, &reply) err: " + err.Error())
 	}
 
 	fmt.Println(" - Transactions: " + reply.Content.Transactions)

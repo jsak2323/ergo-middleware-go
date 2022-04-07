@@ -13,9 +13,9 @@ func ScanTransactions() string {
 	rpcReq := GenerateRpcReq("", "", "")
 
 	xmlrpcClient := NewXmlRpcClient("localhost", config.CONF.RpcPort, "/xmlrpc")
-	err := xmlrpcClient.XmlRpcCall("ERGORpc.ScanTransactions", &rpcReq, &reply)
+	err := xmlrpcClient.XmlRpcCall("ERGRpc.ScanTransactions", &rpcReq, &reply)
 	if err != nil {
-		fmt.Println("xmlrpcClient.XmlRpcCall(\"ERGORpc.ScanTransactions\", &rpcReq, &reply) err: " + err.Error())
+		fmt.Println("xmlrpcClient.XmlRpcCall(\"ERGRpc.ScanTransactions\", &rpcReq, &reply) err: " + err.Error())
 	}
 
 	if reply.Content.Error != "" {

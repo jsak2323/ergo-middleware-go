@@ -13,9 +13,9 @@ func GetNewAddress() string {
 	rpcReq := GenerateRpcReq("", "", "")
 
 	xmlrpcClient := NewXmlRpcClient("localhost", config.CONF.RpcPort, "/xmlrpc")
-	err := xmlrpcClient.XmlRpcCall("ERGORpc.GetNewAddress", &rpcReq, &reply)
+	err := xmlrpcClient.XmlRpcCall("ERGRpc.GetNewAddress", &rpcReq, &reply)
 	if err != nil {
-		fmt.Println("xmlrpcClient.XmlRpcCall(\"ERGORpc.GetNewAddress\", &rpcReq, &reply) err: " + err.Error())
+		fmt.Println("xmlrpcClient.XmlRpcCall(\"ERGRpc.GetNewAddress\", &rpcReq, &reply) err: " + err.Error())
 	}
 
 	fmt.Println(" - Address: " + reply.Content.Address)

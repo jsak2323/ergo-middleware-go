@@ -15,18 +15,18 @@ type RpcReq struct {
 	Nonce   string
 }
 
-type ERGORpc struct {
+type ERGRpc struct {
 	addressRepo     ad.AddressRepository
 	transactionRepo tx.TransactionRepository
 	blockRepo       bl.BlocksRepository
 }
 
-func NewERGORpc(
+func NewERGRpc(
 	addressRepo ad.AddressRepository,
 	transactionRepo tx.TransactionRepository,
 	blockRepo bl.BlocksRepository,
-) *ERGORpc {
-	return &ERGORpc{
+) *ERGRpc {
+	return &ERGRpc{
 		addressRepo,
 		transactionRepo,
 		blockRepo,

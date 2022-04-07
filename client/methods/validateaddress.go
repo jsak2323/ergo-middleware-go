@@ -14,9 +14,9 @@ func ValidateAddress(address string) bool {
 	rpcReq := GenerateRpcReq(address, "", "")
 
 	xmlrpcClient := NewXmlRpcClient("localhost", config.CONF.RpcPort, "/xmlrpc")
-	err := xmlrpcClient.XmlRpcCall("ERGORpc.ValidateAddress", &rpcReq, &reply)
+	err := xmlrpcClient.XmlRpcCall("ERGRpc.ValidateAddress", &rpcReq, &reply)
 	if err != nil {
-		fmt.Println("xmlrpcClient.XmlRpcCall(\"ERGORpc.ValidateAddress\", &rpcReq, &reply) err: " + err.Error())
+		fmt.Println("xmlrpcClient.XmlRpcCall(\"ERGRpc.ValidateAddress\", &rpcReq, &reply) err: " + err.Error())
 	}
 
 	fmt.Println(" - IsValid: " + strconv.FormatBool(reply.Content.IsValid))

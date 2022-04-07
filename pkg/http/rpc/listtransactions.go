@@ -24,7 +24,7 @@ type ListTransactionsTx struct {
 	Confirmations int    `json:"confirmations"`
 }
 
-func (rpc *ERGORpc) ListTransactions(req *http.Request, args *RpcReq, reply *ListTransactionsRes) error {
+func (rpc *ERGRpc) ListTransactions(req *http.Request, args *RpcReq, reply *ListTransactionsRes) error {
 	defer req.Body.Close()
 
 	listTransactionTxs := []ListTransactionsTx{}

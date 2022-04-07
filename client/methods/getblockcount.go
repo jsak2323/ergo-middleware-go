@@ -13,9 +13,9 @@ func GetBlockCount() string {
 	rpcReq := GenerateRpcReq("", "", "")
 
 	xmlrpcClient := NewXmlRpcClient("localhost", config.CONF.RpcPort, "/xmlrpc")
-	err := xmlrpcClient.XmlRpcCall("ERGORpc.GetBlockCount", &rpcReq, &reply)
+	err := xmlrpcClient.XmlRpcCall("ERGRpc.GetBlockCount", &rpcReq, &reply)
 	if err != nil {
-		fmt.Println("xmlrpcClient.XmlRpcCall(\"ERGORpc.GetBlockCount\", &rpcReq, &reply) err: " + err.Error())
+		fmt.Println("xmlrpcClient.XmlRpcCall(\"ERGRpc.GetBlockCount\", &rpcReq, &reply) err: " + err.Error())
 	}
 
 	fmt.Println(" - Blocks: " + reply.Content.Blocks)

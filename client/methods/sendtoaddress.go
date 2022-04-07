@@ -13,9 +13,9 @@ func SendToAddress(amount string, to string) string {
 	rpcReq := GenerateRpcReq(amount, to, "")
 
 	xmlrpcClient := NewXmlRpcClient("localhost", config.CONF.RpcPort, "/xmlrpc")
-	err := xmlrpcClient.XmlRpcCall("ERGORpc.SendToAddress", &rpcReq, &reply)
+	err := xmlrpcClient.XmlRpcCall("ERGRpc.SendToAddress", &rpcReq, &reply)
 	if err != nil {
-		fmt.Println("xmlrpcClient.XmlRpcCall(\"ERGORpc.SendToAddress\", &rpcReq, &reply) err: " + err.Error())
+		fmt.Println("xmlrpcClient.XmlRpcCall(\"ERGRpc.SendToAddress\", &rpcReq, &reply) err: " + err.Error())
 	}
 
 	fmt.Println(" - TxHash: " + reply.Content.TxHash)

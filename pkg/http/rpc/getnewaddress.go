@@ -17,7 +17,7 @@ type GetNewAddressResStruct struct {
 	Error   string
 }
 
-func (rpc *ERGORpc) GetNewAddress(req *http.Request, args *RpcReq, reply *GetNewAddressRes) error {
+func (rpc *ERGRpc) GetNewAddress(req *http.Request, args *RpcReq, reply *GetNewAddressRes) error {
 	err := ergo.UnlockWallet()
 	if err != nil {
 		logger.ErrorLog("GetNewAddress -- ergo.UnlockWallet(), err: " + err.Error())
