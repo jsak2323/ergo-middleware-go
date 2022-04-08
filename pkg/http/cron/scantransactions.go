@@ -105,7 +105,7 @@ func (cron *ErgoCron) saveTransactions(blockDBConv, blockCountNode int64) (txCou
 	}
 	fmt.Println("transactions in node ", len(transactions.Resp), "minInclusionHeight", blockDBConv, "maxInclusionHeight ", blockCountNode)
 
-	if len(transactions.Resp) > 1 {
+	if len(transactions.Resp) >= 1 {
 
 		for i := len(transactions.Resp) - 1; i >= 0; i-- {
 			var (
