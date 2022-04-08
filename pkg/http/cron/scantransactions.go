@@ -45,6 +45,12 @@ func (cron *ErgoCron) ScanTransactions(blockNum int64) (err error) {
 		}
 		blockDBConv, _ = strconv.ParseInt(lastBlock.LastUpdatedBlockNum, 10, 64)
 
+		maxblockCount, err = ergo.GetBlockCount()
+		if err != nil {
+			logger.ErrorLog("scanTransactions cron.GetBlockCount()) err: " + err.Error())
+			return err
+		}
+
 	}
 
 	// scan by wallet/transaction by minInclusionHeight by block count db - valid block && maxInclusionHeight =get block count
@@ -88,8 +94,8 @@ func (cron *ErgoCron) ScanTransactions(blockNum int64) (err error) {
 }
 
 func (cron *ErgoCron) saveTransactions(blockDBConv, blockCountNode int64) (txCount int, blockNum int64, err error) {
-	if blockDBConv >= 15 {
-		blockDBConv -= 15
+	if blockDBConv >= 6 {
+		blockDBConv -= 6
 	}
 
 	transactions, err := ergo.ListTransactions(blockDBConv, blockCountNode)
@@ -97,6 +103,7 @@ func (cron *ErgoCron) saveTransactions(blockDBConv, blockCountNode int64) (txCou
 		logger.ErrorLog("ScanTransactions lastUpdatedBlockNum convert to int64 err: " + err.Error())
 		return txCount, blockNum, err
 	}
+	fmt.Println("transactions in node ", len(transactions.Resp), "minInclusionHeight", blockDBConv, "maxInclusionHeight ", blockCountNode)
 
 	if len(transactions.Resp) > 1 {
 

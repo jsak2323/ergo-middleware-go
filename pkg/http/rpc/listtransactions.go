@@ -17,11 +17,11 @@ type ListTransactionsResStruct struct {
 }
 
 type ListTransactionsTx struct {
-	From          string `json:"from"`
-	To            string `json:"to"`
-	Hash          string `json:"hash"`
-	Amount        string `json:"amount"`
-	Confirmations int    `json:"confirmations"`
+	From          *string `json:"from"`
+	To            string  `json:"to"`
+	Hash          string  `json:"hash"`
+	Amount        string  `json:"amount"`
+	Confirmations int     `json:"confirmations"`
 }
 
 func (rpc *ERGRpc) ListTransactions(req *http.Request, args *RpcReq, reply *ListTransactionsRes) error {
@@ -38,11 +38,10 @@ func (rpc *ERGRpc) ListTransactions(req *http.Request, args *RpcReq, reply *List
 	}
 
 	for _, ergoTransaction := range ergoTransactions {
-
 		listTransactionTx := ListTransactionsTx{
-			From:          *ergoTransaction.From,
+			From:          ergoTransaction.From,
 			To:            ergoTransaction.To,
-			Hash:          ergoTransaction.To,
+			Hash:          ergoTransaction.Hash,
 			Amount:        ergoTransaction.Amount,
 			Confirmations: ergoTransaction.NumConfirmation,
 		}

@@ -8,7 +8,7 @@ import (
 func (cron *ErgoCron) UpdateConfirmations() {
 	var (
 		limit int = 500
-		conf  int = 15
+		conf  int = 6
 	)
 
 	txs, err := cron.transactionRepo.GetConfTransactions(limit, conf)
