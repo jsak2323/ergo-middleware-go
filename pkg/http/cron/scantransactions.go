@@ -17,19 +17,6 @@ import (
 	logger "github.com/btcid/ergo-middleware-go/pkg/logging"
 )
 
-// get block count
-// scan by wallet/transaction by minInclusionHeight by block count db - valid block && maxInclusionHeight =get block count
-// insert to transactions
-// update last block nums with get block count)
-
-// 2 data: luar & indodax = depo
-// —
-// 2 data: indodax & indodax = skip
-// —
-// 3 data: luar & ke 2 akun indodax = depo
-// —
-// 2 data: luar & mainaddress = skip
-
 func (cron *ErgoCron) ScanBlockAndUpdateTransactions(w http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
 
@@ -107,7 +94,7 @@ func (cron *ErgoCron) saveTransactions(blockDBConv, blockCountNode int64) (txCou
 
 	transactions, err := ergo.ListTransactions(blockDBConv, blockCountNode)
 	if err != nil {
-		logger.ErrorLog("scanTransactions lastUpdatedBlockNum convert to int64 err: " + err.Error())
+		logger.ErrorLog("ScanTransactions lastUpdatedBlockNum convert to int64 err: " + err.Error())
 		return txCount, blockNum, err
 	}
 
@@ -118,25 +105,16 @@ func (cron *ErgoCron) saveTransactions(blockDBConv, blockCountNode int64) (txCou
 				transaction = transactions.Resp[i]
 			)
 
-			// 2 data: luar & indodax = depo
-			// —
-			// 2 data: indodax & indodax = skip
-			// —
-			// 3 data: luar & ke 2 akun indodax = depo
-			// —
-			// 2 data: luar & mainaddress = skip
-
 			valid, err := cron.validateTransactions(transaction)
 			if err != nil {
-				logger.ErrorLog("scanTransactions cron.validateTransactions(transaction), err: " + err.Error())
-				// return txCount, blockNum, err
+				logger.ErrorLog("ScanTransactions cron.validateTransactions(transaction), err: " + err.Error())
 			}
 
 			if valid {
 
 				done, err := cron.insertTransactions(transaction)
 				if err != nil {
-					logger.ErrorLog("scanTransactions cron.insertTransactions(transaction), err: " + err.Error())
+					logger.ErrorLog("ScanTransactions cron.insertTransactions(transaction), err: " + err.Error())
 					return txCount, blockNum, err
 				}
 				if done {
@@ -152,15 +130,16 @@ func (cron *ErgoCron) saveTransactions(blockDBConv, blockCountNode int64) (txCou
 
 func (cron *ErgoCron) insertTransactions(transaction ergo.ListTransactionResp) (bool, error) {
 	var (
-		from   string
-		to     string
-		amount string
+		from    *string
+		to      string
+		amount  string
+		countTx int
 	)
 	for _, subtx := range transaction.Outputs {
 
 		trxDBResp, err := cron.transactionRepo.GetByHashAndAddress(transaction.ID, subtx.Address)
 		if err != nil {
-			logger.ErrorLog("scanTransactions cron.transactionRepo.GetByHashAndAddress(transaction.ID, subtx.Address), err: " + err.Error())
+			logger.ErrorLog("ScanTransactions cron.transactionRepo.GetByHashAndAddress(transaction.ID, subtx.Address), err: " + err.Error())
 			return false, err
 		}
 
@@ -171,40 +150,43 @@ func (cron *ErgoCron) insertTransactions(transaction ergo.ListTransactionResp) (
 
 		address, err := cron.addressRepo.GetByAddress(subtx.Address)
 		if err != nil {
-			logger.ErrorLog("scanTransactions cron.addressRepo.GetByAddress(subtx.Address), err: " + err.Error())
+			logger.ErrorLog("ScanTransactions cron.addressRepo.GetByAddress(subtx.Address), err: " + err.Error())
 			return false, err
 		}
 
-		if address.Address == "" {
-			from = subtx.Address
-		} else if address.Address != "" && address.Address[0:3] != config.CONF.AddressFeeInit {
+		if address.Address == "" && subtx.Address[0:2] != config.CONF.AddressFeeInit {
+			from = &subtx.Address
+		} else if address.Address != "" && subtx.Address[0:2] != config.CONF.AddressFeeInit {
 			to = subtx.Address
 			balTemp := strconv.FormatInt(subtx.Value, 10)
 			balance := util.RawToDecimal(balTemp, 9)
 			amount = balance
 		}
-	}
-	if from != "" && to != "" && amount != "" {
 
-		createTx := &mtx.Transaction{
-			NumConfirmation: transaction.NumConfirmations,
-			BlockNumber:     strconv.FormatInt(transaction.InclusionHeight, 10),
-			From:            &from,
-			To:              to,
-			Amount:          amount,
-			Hash:            transaction.ID,
+		countTx++
+		if (countTx == len(transaction.Outputs) || from != nil) && to != "" && amount != "" {
+
+			createTx := &mtx.Transaction{
+				NumConfirmation: transaction.NumConfirmations,
+				BlockNumber:     strconv.FormatInt(transaction.InclusionHeight, 10),
+				From:            from,
+				To:              to,
+				Amount:          amount,
+				Hash:            transaction.ID,
+			}
+
+			logger.Log(" -- Inserting new ERGO Transaction (" + transaction.ID + ") ... ")
+			err := cron.transactionRepo.Create(createTx)
+			if err != nil {
+				logger.ErrorLog("ScanTransactions cron.transactionRepo.Create(createTx), err: " + err.Error())
+				return false, err
+			}
+			logger.Log(" -- New ERGO Tx with hash: " + transaction.ID + " inserted successfully.")
+			return true, nil
 		}
-
-		logger.Log(" -- Inserting new ERGO Transaction (" + transaction.ID + ") ... ")
-		err := cron.transactionRepo.Create(createTx)
-		if err != nil {
-			logger.ErrorLog("scanTransactions ron.transactionRepo.Create(createTx), err: " + err.Error())
-			return false, err
-		}
-		logger.Log(" -- New ERGO Tx with hash: " + transaction.ID + " inserted successfully.")
 	}
 
-	return true, nil
+	return false, nil
 }
 
 func (cron *ErgoCron) validateTransactions(req ergo.ListTransactionResp) (result bool, err error) {
@@ -220,7 +202,7 @@ func (cron *ErgoCron) validateTransactions(req ergo.ListTransactionResp) (result
 
 	for _, subtx := range req.Outputs {
 
-		if subtx.Address[0:3] == config.CONF.AddressFeeInit {
+		if subtx.Address[0:2] == config.CONF.AddressFeeInit {
 			continue
 		}
 		if subtx.Address == config.CONF.MainAddress {
@@ -230,7 +212,7 @@ func (cron *ErgoCron) validateTransactions(req ergo.ListTransactionResp) (result
 
 		address, err := cron.addressRepo.GetByAddress(subtx.Address)
 		if err != nil {
-			logger.ErrorLog("scanTransactions cron.addressRepo.GetByAddress(subtx.Address), err: " + err.Error())
+			logger.ErrorLog("ScanTransactions cron.addressRepo.GetByAddress(subtx.Address), err: " + err.Error())
 			return false, err
 		}
 
@@ -251,7 +233,10 @@ func (cron *ErgoCron) validateTransactions(req ergo.ListTransactionResp) (result
 	// 3 data: luar & ke 2 akun indodax = depo 4 -> luar from , indodax to 1 aja
 	// —
 
-	if externalAddress == 1 && internalAddress >= 1 {
+	// if externalAddress == 1 && internalAddress >= 1 {
+	// 	return true, nil
+	// }
+	if internalAddress == 1 {
 		return true, nil
 	}
 

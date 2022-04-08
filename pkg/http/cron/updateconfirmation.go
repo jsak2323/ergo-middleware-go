@@ -1,13 +1,11 @@
 package cron
 
 import (
-	"net/http"
-
 	"github.com/btcid/ergo-middleware-go/pkg/lib/ergo"
 	logger "github.com/btcid/ergo-middleware-go/pkg/logging"
 )
 
-func (cron *ErgoCron) UpdateConfirmations(w http.ResponseWriter, req *http.Request) {
+func (cron *ErgoCron) UpdateConfirmations() {
 	var (
 		limit int = 500
 		conf  int = 15
@@ -34,5 +32,5 @@ func (cron *ErgoCron) UpdateConfirmations(w http.ResponseWriter, req *http.Reque
 		}
 
 	}
-	logger.InfoLog("UpdateConfirmations confirmations updated", req)
+	logger.Log("UpdateConfirmations confirmations updated")
 }

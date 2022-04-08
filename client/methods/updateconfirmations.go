@@ -6,7 +6,7 @@ import (
 	"github.com/btcid/ergo-middleware-go/cmd/config"
 )
 
-func ScanTransactions() {
+func UpdateConfirmations() {
 	mysqlDbConn := config.MysqlDbConn()
 	defer mysqlDbConn.Close()
 	ergoCronService := NewErgoCron(mysqlDbConn)
@@ -21,7 +21,7 @@ func ScanTransactions() {
 			defer HandlePanicAndCountdown(delay)
 
 			// execute
-			ergoCronService.ScanTransactions(0)
+			ergoCronService.UpdateConfirmations()
 
 			fmt.Println(" --- ScanBlock end ---")
 		}()

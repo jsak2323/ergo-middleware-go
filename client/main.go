@@ -35,6 +35,9 @@ func main() {
 	case "scantransactions":
 		methods.ScanTransactions()
 
+	case "updateconfirmations":
+		methods.UpdateConfirmations()
+
 	case "listtransactions":
 		limit := ""
 		if len(os.Args) >= 3 {

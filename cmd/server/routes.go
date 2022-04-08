@@ -48,7 +48,7 @@ func SetRoutes(r *mux.Router, mysqlDbConn *sql.DB) {
 
 	_ = ergoCronService
 	r.HandleFunc("/cron/scan_transactions/{blocknum}", ergoCronService.ScanBlockAndUpdateTransactions)
-	r.HandleFunc("/cron/update_confirmations", ergoCronService.UpdateConfirmations)
+	// r.HandleFunc("/cron/update_confirmations", ergoCronService.UpdateConfirmations)
 	// r.HandleFunc("/cron/collect_dust", ergoCronService.CollectDust)
 
 	// HTTP ROUTES
