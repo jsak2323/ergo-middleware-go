@@ -21,7 +21,8 @@ func ScanTransactions() {
 			defer HandlePanicAndCountdown(delay)
 
 			// execute
-			ergoCronService.ScanTransactions(0)
+			// ergoCronService.ScanTransactions(0)
+			ergoCronService.ScanTransactionsV2(0)
 
 			fmt.Println(" --- ScanBlock end ---")
 		}()
